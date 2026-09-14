@@ -1,4 +1,5 @@
 #include <iostream>
+#include "main.h"
 #include "test.h"
 
 int main(void)
