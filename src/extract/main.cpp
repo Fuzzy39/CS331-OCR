@@ -10,7 +10,7 @@ int main(void)
     /*
         Dataset data("path/to/imagedata", "path/to/labeldata"); // We'd get these from command line arguments and check them probably.
         size_t index = 0;
-        for(Image img : Dataset.getImages())
+        for(Image img : data.getImages())
         {
             SomeStringbuilderOrSomething("path/to/images")<<index;
             img.writeToFile(SomeStringBuilderOrSomething.cstr());
