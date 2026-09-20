@@ -27,8 +27,3 @@ void AbstractMatrix::setHeight(int h) {
     this->setArea(this->width * h);
 }
 
-int AbstractMatrix::getArea() {
-    return this->width * this->height;
-}
-
-

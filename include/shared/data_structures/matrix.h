@@ -7,6 +7,7 @@
 class Matrix : public AbstractMatrix {
 public:
     Matrix(int width, int height);
+    void fillMatrix(std::vector<std::vector<double>>);
     
     // computations
     static Matrix multiply(Matrix, Matrix);
@@ -21,6 +22,9 @@ public:
     static Matrix add(Matrix, Vector);
     static Matrix subtract(Matrix, Vector);
 
+private:
+    std::vector<std::vector<double>> data;
+
 };
 
-#endif;
+#endif

@@ -17,6 +17,10 @@ private:
     int width;
     int height;  
     int area;
+
+
+    std::vector<std::vector<double>> data;
+
 };
 
 #endif
