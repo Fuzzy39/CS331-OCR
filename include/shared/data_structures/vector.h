@@ -11,10 +11,10 @@ public:
     void fillVector(std::vector<T>);
     
     // computations
-    static Vector multiply(Vector, Vector);
-    static Vector add(Vector, Vector);
-    static Vector subtract(Vector, Vector);
-    static Vector transpose(Vector);
+    static Vector multiply(const Vector<T>&, const Vector<T>&);
+    static Vector add(const Vector<T>&, const Vector<T>&);
+    static Vector subtract(const Vector<T>&, const Vector<T>&);
+    static Vector transpose(const Vector<T>&);
 
 private:
     std::vector<T> data;

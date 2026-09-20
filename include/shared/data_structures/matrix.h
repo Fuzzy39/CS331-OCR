@@ -12,17 +12,17 @@ public:
     void fillMatrix(std::vector<std::vector<T>>);
     
     // computations
-    static Matrix multiply(Matrix, Matrix);
-    static Matrix add(Matrix, Matrix);
-    static Matrix subtract(Matrix, Matrix);
-    static Matrix transpose(Matrix);
+    static Matrix<T> multiply(const Matrix<T>&, const Matrix<T>&);
+    static Matrix<T> add(const Matrix<T>&, const Matrix<T>&);
+    static Matrix<T> subtract(const Matrix<T>&, const Matrix<T>&);
+    static Matrix<T> transpose(const Matrix<T>&);
 
     // computations with matrix and vector
-    static Matrix multiply(Matrix, Vector);
-    static Vector multiply(Vector, Matrix);
+    static Matrix<T> multiply(const Matrix<T>&, const Vector<T>&);
+    static Vector<T> multiply(const Vector<T>&, const Matrix<T>&);
 
-    static Matrix add(Matrix, Vector);
-    static Matrix subtract(Matrix, Vector);
+    static Matrix<T> add(const Matrix<T>&, const Vector<T>&);
+    static Matrix<T> subtract(const Matrix<T>&, const Vector<T>&);
 
 private:
     std::vector<std::vector<T>> data;

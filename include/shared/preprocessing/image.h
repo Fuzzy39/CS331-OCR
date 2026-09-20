@@ -12,7 +12,7 @@ enum class PixelFormat {
     RGBA8 // 4 bytes per pixel
 };
 
-class Image : public AbstractMatrix {
+class Image : public AbstractMatrix<std::uint8_t> {
 public:
     Image(int width, int height, PixelFormat format);
     

@@ -1,28 +1,34 @@
 #include <iostream>
 #include "data_structures/abstractMatrix.h"
 
-int AbstractMatrix::getWidth() {
+template <typename T>
+int AbstractMatrix<T>::getWidth() {
     return this->width;
 }
 
-int AbstractMatrix::getHeight() {
+template <typename T>
+int AbstractMatrix<T>::getHeight() {
     return this->height;
 }
 
-int AbstractMatrix::getArea() {
+template <typename T>
+int AbstractMatrix<T>::getArea() {
     return this->area;
 }
 
-void AbstractMatrix::setArea(int a) {
+template <typename T>
+void AbstractMatrix<T>::setArea(int a) {
     this->area = a;
 }
 
-void AbstractMatrix::setWidth(int w) {
+template <typename T>
+void AbstractMatrix<T>::setWidth(int w) {
     this->width = w;
     this->setArea(w * this->height);
 }
 
-void AbstractMatrix::setHeight(int h) {
+template <typename T>
+void AbstractMatrix<T>::setHeight(int h) {
     this->height = h;
     this->setArea(this->width * h);
 }
