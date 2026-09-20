@@ -12,18 +12,18 @@ public:
 
     // images
     Image getImage(size_t index);
-    Vector getAllImages();
+    std::vector<Image> getAllImages();
 
     // labels
-    Vector getLabel(size_t index);
-    Vector getAllLabels();
+    Vector<double> getLabel(size_t index);
+    Vector<double> getAllLabels();
 
 
 private:
     std::string imagePath;
     std::string labelPath;
-    Vector images;
-    Vector labels;
+    std::vector<Image> images;
+    Vector<double> labels;
 };
 
 #endif

@@ -4,6 +4,7 @@
 // abstract matrix class
 using namespace std;
 
+template <typename T>
 class AbstractMatrix {
 public:
     int getWidth();
@@ -17,10 +18,8 @@ private:
     int width;
     int height;  
     int area;
-
-
-    std::vector<std::vector<double>> data;
-
+    
+    std::vector<std::vector<T>> data;
 };
 
 #endif

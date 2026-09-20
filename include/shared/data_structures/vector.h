@@ -4,10 +4,11 @@
 
 #include "abstractMatrix.h"
 
-class Vector : public AbstractMatrix {
+template <typename T>
+class Vector : public AbstractMatrix<T> {
 public:
     Vector(int size);
-    void fillVector(std::vector<double>);
+    void fillVector(std::vector<T>);
     
     // computations
     static Vector multiply(Vector, Vector);
@@ -16,8 +17,7 @@ public:
     static Vector transpose(Vector);
 
 private:
-
-    std::vector<double> data;
+    std::vector<T> data;
 
 };
 

@@ -4,10 +4,12 @@
 #include "abstractMatrix.h"
 #include "vector.h"
 
-class Matrix : public AbstractMatrix {
+
+template <typename T>
+class Matrix : public AbstractMatrix<T> {
 public:
     Matrix(int width, int height);
-    void fillMatrix(std::vector<std::vector<double>>);
+    void fillMatrix(std::vector<std::vector<T>>);
     
     // computations
     static Matrix multiply(Matrix, Matrix);
@@ -23,7 +25,7 @@ public:
     static Matrix subtract(Matrix, Vector);
 
 private:
-    std::vector<std::vector<double>> data;
+    std::vector<std::vector<T>> data;
 
 };
 
