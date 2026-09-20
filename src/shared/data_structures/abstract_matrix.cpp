@@ -1,8 +1,6 @@
 #include <iostream>
 #include "data_structures/abstractMatrix.h"
 
-// Basic Abstract Matrix Data Type
-
 int AbstractMatrix::getWidth() {
     return this->width;
 }

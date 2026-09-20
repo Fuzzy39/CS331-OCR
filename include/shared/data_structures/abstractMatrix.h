@@ -9,6 +9,7 @@ public:
     int getWidth();
     int getHeight();
     int getArea();
+
 private: 
     void setWidth(int);
     void setHeight(int);
