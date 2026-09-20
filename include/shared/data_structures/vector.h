@@ -11,14 +11,17 @@ public:
     void fillVector(std::vector<T>);
     
     // computations
-    static Vector multiply(const Vector<T>&, const Vector<T>&);
-    static Vector add(const Vector<T>&, const Vector<T>&);
-    static Vector subtract(const Vector<T>&, const Vector<T>&);
+    static Vector operator*(const Vector<T>&, const Vector<T>&);
+    static Vector operator+(const Vector<T>&, const Vector<T>&);
+    static Vector operator-(const Vector<T>&, const Vector<T>&);
     static Vector transpose(const Vector<T>&);
+
+    // flatten
+    static Vector flattenToVector(const Matrix<T>&);
 
 private:
     std::vector<T> data;
-
+    int size;
 };
 
 #endif
