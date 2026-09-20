@@ -4,8 +4,12 @@ project(OCR LANGUAGES CXX)
 
 
 include_directories(PUBLIC "include/shared")
+include_directories(PUBLIC "include/shared.")
 
-add_library(ocr_lib STATIC "src/shared/test.cpp" "src/shared/stb_image.cpp")
+add_library(ocr_lib STATIC 
+"src/shared/test.cpp" 
+"src/shared/stb_image.cpp"
+"src/shared/data_structures/abstract_matrix.cpp")
 
 
 # Extract
