@@ -2,3 +2,6 @@
 .DS_Store
 build/**
 data/**
+.vscode
+mycppcode.dSYM
+output_folder
