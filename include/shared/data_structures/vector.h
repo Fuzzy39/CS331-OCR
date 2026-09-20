@@ -1,20 +1,24 @@
 #ifndef VECTOR_H
 #define VECTOR_H
 #include <vector>
-
-#include "abstractMatrix.h"
+#include "data_structures/matrix.h"
 
 template <typename T>
-class Vector : public AbstractMatrix<T> {
+class Vector {
 public:
     Vector(int size);
     void fillVector(std::vector<T>);
     
     // computations
-    static Vector operator*(const Vector<T>&, const Vector<T>&);
-    static Vector operator+(const Vector<T>&, const Vector<T>&);
-    static Vector operator-(const Vector<T>&, const Vector<T>&);
-    static Vector transpose(const Vector<T>&);
+    Vector<T> operator*(const Vector<T>& other) const;
+    Vector<T> operator+(const Vector<T>& other) const;
+    Vector<T> operator-(const Vector<T>& other) const;
+    static Vector<T> transpose(const Vector<T>&);
+
+    // computations with matrix
+    Vector<T> operator*(const Matrix<T>& other) const;
+    Vector<T> operator+(const Matrix<T>& other) const;
+    Vector<T> operator-(const Matrix<T>& other) const;
 
     // flatten
     static Vector flattenToVector(const Matrix<T>&);
