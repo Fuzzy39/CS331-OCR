@@ -1,32 +1,32 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
-#include "abstractMatrix.h"
-#include "vector.h"
-
+#include <vector>
 
 template <typename T>
-class Matrix : public AbstractMatrix<T> {
+class Vector;
+
+template <typename T>
+class Matrix {
 public:
-    Matrix(int width, int height);
+    Matrix(int rows, int columns);
     void fillMatrix(std::vector<std::vector<T>>);
     
     // computations
-    static Matrix<T> multiply(const Matrix<T>&, const Matrix<T>&);
-    static Matrix<T> add(const Matrix<T>&, const Matrix<T>&);
-    static Matrix<T> subtract(const Matrix<T>&, const Matrix<T>&);
+    Matrix<T> operator*(const Matrix<T>& other) const;
+    Matrix<T> operator+(const Matrix<T>& other) const;
+    Matrix<T> operator-(const Matrix<T>& other) const;
     static Matrix<T> transpose(const Matrix<T>&);
 
-    // computations with matrix and vector
-    static Matrix<T> multiply(const Matrix<T>&, const Vector<T>&);
-    static Vector<T> multiply(const Vector<T>&, const Matrix<T>&);
-
-    static Matrix<T> add(const Matrix<T>&, const Vector<T>&);
-    static Matrix<T> subtract(const Matrix<T>&, const Vector<T>&);
+    // computations with vector
+    Matrix<T> operator*(const Vector<T>& other) const;
+    Matrix<T> operator+(const Vector<T>& other) const;
+    Matrix<T> operator-(const Vector<T>& other) const;
 
 private:
     std::vector<std::vector<T>> data;
-
+    int rows;
+    int columns;
 };
 
 #endif

@@ -3,6 +3,17 @@
 
 #include "layer.h"
 
+// input count is flattened image size
+// output count is number of classes (categories) for classification
 
+template <typename T>
+class NeuralNetwork {
+public:
+    NeuralNetwork(int inputCount, int outputCount, std::vector<int> hiddenLayerSizes);
+    void initializeNetwork();
 
-#endif;
+private:
+    std::vector<Layer<T>> layers;
+};
+
+#endif

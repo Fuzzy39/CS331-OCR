@@ -57,6 +57,8 @@ public:
     /// @brief Writes an image to the given path, in the format given by the file extension provided. Overrides any prexisting file.
     /// @param path 
     void writeToFile(std::string path);
+    int getWidth();
+    int getHeight();
 
     /// @brief converts the data of the image to a flat vector.
     /// @param desiredFormat describes the way the image data should be converted:
