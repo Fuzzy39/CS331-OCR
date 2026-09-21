@@ -19,22 +19,15 @@ public:
 
     // computations
     void computeOutput(const Vector<T>& inputs);
-    void setOutputs(const Vector<T>& outputs);
     Vector<T> getOutputs();
 
 private:
     int neuronCount;
     int inputCount;
 
-    // weight matrix
     Matrix<T> weights;
-
-    // bias
     Vector<T> biases;
-
-    // layer outputs
     Vector<T> outputs;
-
 };
 
-#endif LAYER_H
+#endif
