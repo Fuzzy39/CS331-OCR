@@ -1,10 +1,14 @@
 #include <iostream>
-#include "test.h"
 
 int main(void)
 {
     std::cout<<"This is extract!\n";
-    test();
+
+    // What I would think this program should do:
+    // Takes in a path to the folder or two paths to the files for the dataset, and optional arguments for output path and maximum number of images
+    // Outputs a series of images from the dataset, with the filenames LabelX.png, where label is the label (zero, one, two, etc.) and X is the numbered instance of that label.
+    // could work differently but that's my thought
+    
 
     // I imagine:
     /*

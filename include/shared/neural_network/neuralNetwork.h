@@ -5,15 +5,18 @@
 
 // input count is flattened image size
 // output count is number of classes (categories) for classification
+namespace ocr
+{
+    template <typename T>
+    class NeuralNetwork 
+    {
+    public:
+        NeuralNetwork(int inputCount, int outputCount, std::vector<int> hiddenLayerSizes);
+        void initializeNetwork();
 
-template <typename T>
-class NeuralNetwork {
-public:
-    NeuralNetwork(int inputCount, int outputCount, std::vector<int> hiddenLayerSizes);
-    void initializeNetwork();
-
-private:
-    std::vector<Layer<T>> layers;
-};
+    private:
+        std::vector<Layer<T>> layers;
+    };
+}
 
 #endif

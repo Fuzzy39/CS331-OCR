@@ -12,7 +12,7 @@ using ocr::Batch;
 
 namespace ocr
 {
-    template <typename enum T>
+    template <typename T>
     class Dataset
     {
     private:
@@ -32,7 +32,7 @@ namespace ocr
         Vector<T>& getAllLabels();
 
         // batches
-        std::unique_ptr<Batch> getBatch(size_t index, size_t batchSize);
+        std::unique_ptr<Batch<T>> getBatch(size_t index, size_t batchSize);
     };
 }
 
