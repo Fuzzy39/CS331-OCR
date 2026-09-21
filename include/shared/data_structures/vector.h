@@ -6,29 +6,26 @@
 namespace ocr
 {
     template <typename T>
-    class Vector 
+    class Vector : public Matrix<T>
     {
     public:
         Vector(int size);
-        void fillVector(std::vector<T>);
         
+        using Matrix<T>::fill;
+        void fill(std::vector<T>);
+
         // computations
-        Vector<T> operator*(const Vector<T>& other) const;
+        T operator*(const Vector<T>& other) const; // dot product
         Vector<T> operator+(const Vector<T>& other) const;
         Vector<T> operator-(const Vector<T>& other) const;
         static Vector<T> transpose(const Vector<T>&);
-
-        // computations with matrix
-        Vector<T> operator*(const Matrix<T>& other) const;
-        Vector<T> operator+(const Matrix<T>& other) const;
-        Vector<T> operator-(const Matrix<T>& other) const;
+        
+        using Matrix<T>::operator*;
+        using Matrix<T>::operator+;
+        using Matrix<T>::operator-;
 
         // flatten
         static Vector flattenToVector(const Matrix<T>&);
-
-    private:
-        std::vector<T> data;
-        int size;
     };
 }
 

@@ -14,7 +14,7 @@ namespace ocr
     {
     public:
         Matrix(int rows, int columns);
-        void fillMatrix(std::vector<std::vector<T>>);
+        void fill(std::vector<std::vector<T>>);
         
         // computations
         Matrix<T> operator*(const Matrix<T>& other) const;
@@ -22,11 +22,14 @@ namespace ocr
         Matrix<T> operator-(const Matrix<T>& other) const;
         static Matrix<T> transpose(const Matrix<T>&);
 
-        // computations with vector
+        // overloaded computations with vector
         Matrix<T> operator*(const Vector<T>& other) const;
         Matrix<T> operator+(const Vector<T>& other) const;
         Matrix<T> operator-(const Vector<T>& other) const;
 
+        int getRows() const;
+        int getColumns() const;
+        int getData() const;
     private:
         std::vector<std::vector<T>> data;
         int rows;
