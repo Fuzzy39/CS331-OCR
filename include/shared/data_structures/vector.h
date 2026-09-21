@@ -9,8 +9,8 @@ namespace ocr
     class Vector : public Matrix<T>
     {
     public:
-        Vector(int size);
-        
+        Vector(int size) : Matrix<T>(size, 1) {}
+
         using Matrix<T>::fill;
         void fill(std::vector<T>);
 
