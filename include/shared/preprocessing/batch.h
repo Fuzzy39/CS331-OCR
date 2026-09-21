@@ -3,16 +3,23 @@
 #include "preprocessing/image.h"
 #include "data_structures/vector.h"
 
-template <typename T>
-class Batch {
-public:
-    Batch(int batchSize, std::vector<Image> images, Vector<T> labels);
+namespace ocr
+{
+    template <typename enum T>
+    class Batch 
+    {
+    private:
+        size_t batchSize;
+        std::vector<Image> images;
+        Vector<T> labels;
+    public:
+        Batch(int batchSize, std::vector<Image> images, std::Vector<T> labels);
 
-private:
-    int batchSize;
-    std::vector<Image> images;
-    Vector<T> labels;
-};
-
+        size_t getSize();
+        ocr::Image& getImage(size_t index);
+        T getLabel(size_t index);
+    
+    };
+}
 
 #endif
