@@ -1,11 +1,21 @@
 cmake_minimum_required(VERSION 3.28)
 
 project(OCR LANGUAGES CXX)
-
+set (CMAKE_CXX_STANDARD 17)
 
 include_directories(PUBLIC "include/shared")
+include_directories(PUBLIC "include/shared.")
 
-add_library(ocr_lib STATIC "src/shared/test.cpp" "src/shared/stb_image.cpp")
+add_library(ocr_lib STATIC 
+"src/shared/stb_image.cpp"
+"src/shared/data_structures/matrix.cpp"
+"src/shared/data_structures/vector.cpp"
+"src/shared/preprocessing/image.cpp"
+"src/shared/preprocessing/dataset.cpp"
+"src/shared/preprocessing/batch.cpp"
+"src/shared/neural_network/layer.cpp"
+"src/shared/neural_network/neuralNetwork.cpp"
+)
 
 
 # Extract

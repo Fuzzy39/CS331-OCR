@@ -1,10 +1,11 @@
 #include <iostream>
-#include "main.h"
-#include "test.h"
+
+using namespace std;
 
 int main(void)
 {
-    std::cout<<"This is classify!\n";
-    test();
+    cout<<"This is classify!\n";
     return 0;
 }
+
+
