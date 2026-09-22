@@ -51,7 +51,7 @@ namespace ocr
         /// @brief Reads image from a file, forcing it to fit a particular size.
         ///        If the image is too small, the data will be put in the top left corner and remaining pixels will be black.
         ///        If the image is too large, individual will be sampled at intervals to produce a smaller image. The image is not blured.
-        Image(std::string filename, size_t width, size_t height);
+        Image(std::string filename, int width, int height);
 
 
         Format getImageFormat();
