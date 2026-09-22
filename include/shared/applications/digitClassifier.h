@@ -9,7 +9,7 @@ namespace ocr
 {
     enum class Digit
     {
-        Zero,
+        Zero = 48,
         One,
         Two,
         Three,
