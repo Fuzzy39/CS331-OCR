@@ -11,7 +11,7 @@ add_library(ocr_lib STATIC
 "src/shared/data_structures/matrix.cpp"
 "src/shared/data_structures/vector.cpp"
 "src/shared/preprocessing/image.cpp"
-"src/shared/preprocessing/dataset.cpp"
+"src/shared/preprocessing/dataset.ipp"
 "src/shared/preprocessing/batch.cpp"
 "src/shared/neural_network/layer.cpp"
 "src/shared/neural_network/neuralNetwork.cpp"

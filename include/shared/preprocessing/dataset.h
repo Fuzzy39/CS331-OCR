@@ -28,10 +28,13 @@ namespace ocr
         std::vector<Image>& getAllImages();
 
         // labels
-        Vector<T>& getLabel(size_t index);
+        T& getLabel(size_t index);
         Vector<T>& getAllLabels();
 
         // batches
+        size_t getBatchCount(size_t batchSize);
+
+        /// @brief gets the index(th) batch, where all batches (possibly except the last) are of size batchSize. 
         std::unique_ptr<Batch<T>> getBatch(size_t index, size_t batchSize);
     };
 }
