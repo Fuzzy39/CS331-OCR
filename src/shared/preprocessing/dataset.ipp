@@ -49,30 +49,38 @@ Vector<T>& Dataset<T>::getAllLabels()
     return labels;
 }
 
+template<typename T>
+size_t getBatchCount(size_t batchSize)
+{
+    double number_of_batches = std::ceil(images.size()/static_cast<double>(batchSize));
+    return static_cast<size_t>(number_of_batches);
+}
+
 // batches
 template <typename T>
 std::unique_ptr<Batch<T>> Dataset<T>::getBatch(size_t index, size_t batchSize)
 {
     // this requires some implementation.
 
-    if(index<0 || index>=images.size())
+    if(index<0 || index>=getBatchCount(batchSize))
     {
         // Arguably we could depend on vector to throw an exception for us when we try to do something
         // wrong but given we're already putting some logic here we should probably be defensive instead.
         std::ostringstream error();
         error << "Dataset::getBatch: index: "<< index
-              <<" is out of range for this dataset. Valid range is (0 - "<< (images.size()-1)<<".";
+              <<" is out of range for this dataset. Valid range is (0 - "<< getBatchCount(batchSize) <<".";
 
         throw std::out_of_range(error.str());
     }
 
-    if( index+batchSize >= images.size())
+    size_t image_index = index*batchSize;
+
+    if(image_index+batchSize >= images.size())
     {
         // We will return a smaller batch if there's not quite enough entries.
-        batchSize = images.size()-index;
+        batchSize = images.size()-image_index;
     }
 
-    // create a new batch.
-    // TODO: does the batch header need to be changed? should this logic go in Batch?
-    return std::unique_ptr<Batch>(new Batch(batchsize, ))
+    // finally, create a new batch.
+    return std::unique_ptr<Batch>(new Batch(batchsize, images.begin()+image_index, labels.begin()+image_index));
 }
