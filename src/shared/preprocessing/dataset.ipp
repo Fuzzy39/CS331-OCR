@@ -1,15 +1,173 @@
 #pragma once
 #include "preprocessing/dataset.h"
 #include "preprocessing/batch.h"
+#include <fstream>
+#include <bit>
+#include <memory>
+
 using namespace ocr;
+
 
 // implementation of the Dataset class
 
 template <typename T>
 Dataset<T>::Dataset(std::string imagePath, std::string labelPath)
 {
+    // Okay! So, we need to parse these dataset files into a buttload of images.
+    // delegate it!
+    parseImages(imagePath);
+    parseLabels(labelPath);
+
+    if(images.size() != labels.size())
+    {
+        std::ostringstream error();
+        error<<"Dataset::Dataset: Size mismatch between Images ("<<images.size()<<") and Labels ("<<labels.size()<<"). ";
+        throw std::invalid_argument(error.str());
+    }
 
 }
+
+template <typename T>
+void Dataset<T>::parseImages(std::string imagePath)
+{
+    const uint32_t MNIST_IMAGE_MAGIC = 2049; // magic number for mnist image file.  
+
+    // open the file for reading. Complain dramatically if something went wrong.
+    std::ifstream file(imagePath.c_str(), std::ios::in | std::ios::binary);
+    file.exceptions(std::ifstream::failbit | std::ifstream::badbit );
+
+    if(!file.is_open() || file.fail())
+    {
+        std::ostringstream error();
+        error<<"Dataset file at '"<<imagePath<<"' Could not be opened. Does the file exist?";
+        throw std::invalid_argument(error.str());
+    }
+
+    // check that this file is actually supposed to be a label file.
+    verifyMagicNumber(file, MNIST_IMAGE_MAGIC, imagePath);
+
+    // Read the remainder of the header:
+    uint32_t length    = readIntFromFile(file, imagePath);
+    uint32_t pixelRows = readIntFromFile(file, imagePath);
+    uint32_t pixelCols = readIntFromFile(file, imagePath);
+
+    size_t imageBytes = pixelRows*pixelCols;
+
+    images();
+
+    // Now, read the images from the file.
+    for(int i = 0; i<length; i++)
+    {
+        uint8_t imageData[imageBytes]; // Variable length arrays. Magic!
+        file.read(&imageData, sizeof(uint8_t)*imageBytes);
+
+        if(file.eof())
+        {
+            std::ostringstream error();
+            error<<"Unexpected end of file while reading from '"<<filePath<<"'.";
+            throw std::invalid_argument(error.str());
+        }
+
+        images.push_back(make_unique<Image>(pixelRows, pixelCols, Image::Format::Grayscale, imageData));
+
+    }
+
+    // I don't think you need to call close, since ifstream should clean up in its destructor. but it seems polite? Sure.
+    file.close();
+}
+
+
+template <typename T>
+void Dataset<T>::parseLabels(std::string labelPath)
+{
+    const uint32_t MNIST_LABEL_MAGIC = 2051; // magic number for mnist label file.
+    const size_t BUFFER_SIZE = 100;    
+
+    // open the file for reading. Complain dramatically if something went wrong.
+    std::ifstream file(labelPath.c_str(), std::ios::in | std::ios::binary);
+    file.exceptions(std::ifstream::failbit | std::ifstream::badbit );
+
+    if(!file.is_open() || file.fail())
+    {
+        std::ostringstream error();
+        error<<"Label file at '"<<labelPath<<"' Could not be opened. Does the file exist?";
+        throw std::invalid_argument(error.str());
+    }
+
+    // check that this file is actually supposed to be a label file.
+    verifyMagicNumber(file, MNIST_LABEL_MAGIC, labelPath);
+
+    // Read the number of labels expected:
+   
+    labels();
+    size_t bytesToRead = BUFFER_SIZE > length ? length: BUFFER_SIZE;
+
+    // read through all of the labels the file claims will be there and 
+    for( uint32_t length = readIntFromFile(file, labelPath); length > 0; length -= bytesToRead)
+    {
+        uint8_t buffer[BUFFER_SIZE];
+        bytesToRead = BUFFER_SIZE > length ? length: BUFFER_SIZE;
+
+        file.read(&buffer, sizeof(uint8_t)*bytesToRead);
+ 
+        if(file.eof())
+        {
+            std::ostringstream error();
+            error<<"Unexpected end of file while reading from '"<<filePath<<"'.";
+            throw std::invalid_argument(error.str());
+        }
+
+        for(uint8_t labelData : buffer)
+        {
+            labels.push_back(static_cast<T>(labelData));
+        }
+    }
+
+    // I don't think you need to call close, since ifstream should clean up in its destructor. but it seems polite? Sure.
+    file.close();
+}
+
+
+template <typename T>
+static void verifyMagicNumber(std::ifstream file, uint32_t expected, std::string filePath)
+{
+    // Many types of files contain magic numbers in their headers as a simple check for programs so that they know the file actually is supposed to be of the format they are parsing it as.
+    // the dataset files have magic numbers, so we ought to check them.
+    if(readIntFromFile(file, filePath) != expected)
+    {
+        std::ostringstream error();
+        error<<"Got wrong magic number for file at '"<<filePath<<
+            "' (Got: 0x"<< std::hex() << std::setwidth(8) << std::setfill('0')<<magic_number<<
+            ", Expected: 0x"<<expected<<"). The file is malformed or of the wrong format.";
+        throw std::invalid_argument(error.str());
+    }
+}
+
+
+template <typename T>
+static uint32_t readIntFromFile(std::ifstream file, std::string filePath)
+{
+    
+    uint32_t toReturn = 0;
+    file.read((char*)&toReturn, sizeof(uint32_t));
+
+    if(file.eof())
+    {
+        file.close();
+        std::ostringstream error();
+        error<<"Unexpected end of file while reading from '"<<filePath<<"'.";
+        throw std::invalid_argument(error.str());
+    }
+
+    if(std::endian::native == std::endian::little)
+    {
+        // swap the bits around if we're on x86 (I mean, Max has a mac I think so this could run on arm, right?)
+        return std::byteswap<uint32_t>(toReturn);
+    }
+
+    return toReturn;
+}
+
 
 template <typename T>
 size_t Dataset<T>::getImageCount()
@@ -28,7 +186,7 @@ Image& Dataset<T>::getImage(size_t index)
 }
 
 template <typename T>
-std::vector<Image>& Dataset<T>::getAllImages()
+std::vector<std::unique_ptr<Image>>& Dataset<T>::getAllImages()
 {
     return images;
 }
@@ -82,5 +240,5 @@ std::unique_ptr<Batch<T>> Dataset<T>::getBatch(size_t index, size_t batchSize)
     }
 
     // finally, create a new batch.
-    return std::unique_ptr<Batch>(new Batch(batchsize, images.begin()+image_index, labels.begin()+image_index));
+    return make_unique<Batch>(batchsize, images.begin()+image_index, labels.begin()+image_index);
 }

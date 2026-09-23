@@ -4,7 +4,7 @@ project(OCR LANGUAGES CXX)
 set (CMAKE_CXX_STANDARD 17)
 
 include_directories(PUBLIC "include/shared")
-include_directories(PUBLIC "include/shared.")
+
 
 add_library(ocr_lib STATIC 
 "src/shared/stb_image.cpp"

@@ -24,10 +24,10 @@ namespace ocr
     typedef Dataset<Digit> DigitDataSet;
     typedef Batch<Digit> DigitBatch;
 
-    class DigitClassifier: public NueralNetwork<double>
+    class DigitClassifier: public NeuralNetwork<double>
     {
         // Implement
-    }
+    };
 }
 
 #endif

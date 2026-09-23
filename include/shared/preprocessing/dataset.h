@@ -12,20 +12,29 @@ using ocr::Batch;
 
 namespace ocr
 {
+   
+
     template <typename T>
     class Dataset
     {
     private:
-        std::vector<Image> images;
+        std::vector<std::unique_ptr<Image>> images;
         Vector<T> labels;
     public:
         Dataset(std::string imagePath, std::string labelPath);
+
+    private:
+        void parseImages(std::string imagePath);
+        void parseLabels(std::string labelPath);
+        static void verifyMagicNumber(std::ifstream file, uint32_t expected, std::string filePath);
+        static uint32_t readIntFromFile(std::ifstream file, std::string filePath);
+    public:
 
         size_t getImageCount();
 
         // images
         Image& getImage(size_t index);
-        std::vector<Image>& getAllImages();
+        std::vector<std::unique_ptr<Image>>& getAllImages();
 
         // labels
         T& getLabel(size_t index);

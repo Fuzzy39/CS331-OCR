@@ -11,6 +11,8 @@
 
 namespace ocr
 {
+    void func();
+
     class Image
     {
     public:
