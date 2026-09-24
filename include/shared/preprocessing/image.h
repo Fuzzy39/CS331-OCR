@@ -39,13 +39,10 @@ namespace ocr
         size_t width;
         size_t height;
         Format format;
-        std::map<Channel, Matrix<uint8_t>> data;
+        std::map<Channel, std::unique_ptr<Matrix<uint8_t>>> data;
 
 
     public:
-        /// @brief Creates an empty image of all black pixels.
-        Image(size_t width, size_t height, Format format);
-
         /// @brief Create an image with the specified format from the given data. It is assumed all channels are 8 bits.
         Image(size_t width, size_t height, Format format, char* const data);
 
@@ -82,6 +79,8 @@ namespace ocr
 
         /// @brief Returns a vector of the data of a given channel.     
         std::unique_ptr<Vector<double>> getChannelAsVector(Channel ch);
+    
+        static std::vector<Channel> getChannelsForFormat(Format f);
 
 
     };
