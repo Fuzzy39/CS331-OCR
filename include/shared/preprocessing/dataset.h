@@ -6,6 +6,7 @@
 #include "preprocessing/image.h"
 #include "preprocessing/batch.h"
 #include <string>
+#include <vector>
 
 using ocr::Image;
 using ocr::Batch;
@@ -19,15 +20,15 @@ namespace ocr
     {
     private:
         std::vector<std::unique_ptr<Image>> images;
-        Vector<T> labels;
+        std::vector<T> labels;
     public:
         Dataset(std::string imagePath, std::string labelPath);
 
     private:
         void parseImages(std::string imagePath);
         void parseLabels(std::string labelPath);
-        static void verifyMagicNumber(std::ifstream file, uint32_t expected, std::string filePath);
-        static uint32_t readIntFromFile(std::ifstream file, std::string filePath);
+        void verifyMagicNumber(std::ifstream& file, uint32_t expected, std::string filePath);
+        uint32_t readIntFromFile(std::ifstream& file, std::string filePath);
     public:
 
         size_t getImageCount();
@@ -48,4 +49,5 @@ namespace ocr
     };
 }
 
+#include "preprocessing/dataset.ipp"
 #endif

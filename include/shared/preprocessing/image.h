@@ -11,7 +11,6 @@
 
 namespace ocr
 {
-    void func();
 
     class Image
     {
@@ -48,7 +47,7 @@ namespace ocr
         Image(size_t width, size_t height, Format format);
 
         /// @brief Create an image with the specified format from the given data. It is assumed all channels are 8 bits.
-        Image(size_t width, size_t height, Format format, const uint8_t& data);
+        Image(size_t width, size_t height, Format format, char* const data);
 
         /// @brief Reads image from a file, forcing it to fit a particular size.
         ///        If the image is too small, the data will be put in the top left corner and remaining pixels will be black.
