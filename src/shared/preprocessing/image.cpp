@@ -7,7 +7,7 @@ using namespace ocr;
 
 ocr::Image::Image(size_t width, size_t height, Format format)
 {
-    // do thingsgt7u8i6yyfdlugfl98
+    // do things
 }
 
 ocr::Image::Image(size_t width, size_t height, Format format, char* const data)
