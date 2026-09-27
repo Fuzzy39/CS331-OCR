@@ -54,7 +54,7 @@ void ocr::Dataset<T>::parseImages(std::string imagePath)
     uint32_t pixelCols = readIntFromFile(file, imagePath);
 
     size_t imageBytes = pixelRows*pixelCols;
-    char* imageData = new char[imageBytes];
+    uint8_t* imageData = new uint8_t[imageBytes];
 
     // Now, read the images from the file.
     for(int i = 0; i<length; i++)
@@ -101,7 +101,6 @@ void ocr::Dataset<T>::parseLabels(std::string labelPath)
     verifyMagicNumber(file, MNIST_LABEL_MAGIC, labelPath);
 
     // Read the number of labels expected:
-
     uint32_t length = readIntFromFile(file, labelPath);
     
     // read through all of the labels the file claims will be there and 

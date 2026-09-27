@@ -44,13 +44,17 @@ namespace ocr
 
     public:
         /// @brief Create an image with the specified format from the given data. It is assumed all channels are 8 bits.
-        Image(size_t width, size_t height, Format format, char* const data);
+        /// Each pixel's data is contiguous.
+        /// Data is by row, then by column.
+        Image(size_t width, size_t height, Format format, const uint8_t* const data);
 
         /// @brief Reads image from a file, forcing it to fit a particular size.
         ///        If the image is too small, the data will be put in the top left corner and remaining pixels will be black.
         ///        If the image is too large, individual will be sampled at intervals to produce a smaller image. The image is not blured.
         Image(std::string filename, size_t width, size_t height);
-
+    private:
+        // assumes the pointer points to an appropriately sized hunk of memory.
+        void populateMap( const uint8_t* const data);
 
         Format getImageFormat();
         size_t getWidth();
@@ -71,11 +75,13 @@ namespace ocr
         //              Have an alpha channel, it will always be 1 in the output.
         /// @return Returns a vector of size width*height*size of desired format. pixel data is always grouped sequentially, 
         ///         and pixel data is outputed left to right, then top to bottom.
-        std::unique_ptr<Vector<double>> asFlatVector(Format desiredFormat);
-
-        
+        std::unique_ptr<ocr::Vector<double>> asFlatVector(Format desiredFormat);
+private:
+        std::unique_ptr<std::vector<uint8_t>> asRawFlatVector(Format desiredFormat);
+public:
+    
         /// @brief Returns the raw data of the given channel, if present.
-        std::optional<Matrix<std::uint8_t>>& getChannel(Channel ch);
+        std::optional<Matrix<std::uint8_t>> getChannel(Channel ch);
 
         /// @brief Returns a vector of the data of a given channel.     
         std::unique_ptr<Vector<double>> getChannelAsVector(Channel ch);

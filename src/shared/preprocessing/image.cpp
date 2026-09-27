@@ -1,23 +1,106 @@
 #include "preprocessing/image.h"
 #include <iostream>
+#include <utility>
+#include <sstream>
+#include <memory>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
 
+
 using namespace ocr;
 
 // implementation of the Image class
 
-ocr::Image::Image(size_t width, size_t height, Format format, char* const data)
+ocr::Image::Image(size_t width, size_t height, Format format, const uint8_t* const data)
+    : width(width), height(height), format(format), data()
 {
-
+   populateMap(data);
 }
 
 ocr::Image::Image(std::string filename, size_t width, size_t height)
+    : width(width), height(height), format(Image::Format::Grayscale), data()
 {
+    int actualWidth = 0;
+    int actualHeight = 0;
+    int numChannels = 0;
+    uint8_t* data = stbi_load(filename.c_str(), &actualWidth, &actualHeight, &numChannels, 0);
+    if(data == NULL)
+    {
+        throw std::invalid_argument(stbi_failure_reason());
+    }
 
+    // if the image isn't the size we expect, throw a tantrum. How dare they?
+    if(actualWidth != width || actualHeight != height)
+    {
+        std::ostringstream error;
+        error<<"Expected an image of size ("<<width<<", "<<height<< "). Got ("
+            <<actualWidth<<", "<<actualHeight<<").";
+        throw std::invalid_argument(error.str());
+    }
+
+    // now that we have the image data, we know what format we are.
+    switch(numChannels)
+    {
+    case 1:
+        format = Image::Format::Grayscale;
+        break;
+    case 3:
+        format = Image::Format::RGB;
+        break;
+    case 4:
+        format = Image::Format::RGBA;
+        break;
+    default:
+        throw std::invalid_argument("Image had an unusual number of channels.");
+    }
+
+    // now actually put away the data and store it properly.
+    populateMap(data);
+    stbi_image_free(data);
+}
+
+void ocr::Image::populateMap( const uint8_t* const data)
+{
+    std::vector<Image::Channel> channels = getChannelsForFormat(format);
+
+    // create the map
+    std::map<Channel, std::unique_ptr<Matrix<uint8_t>>>& map = this->data;
+    // create a temporary vector to fill the matrix.
+    std::vector<std::vector<std::vector<uint8_t>>> imageData;
+
+    for(Image::Channel ch : channels)
+    {
+        // fill them with empty husks before we populate them
+        map.emplace(Image::Channel::Greyscale, ocr::Matrix<uint8_t>(width, height));
+        imageData.emplace_back();
+    }
+
+    // populate this giant vector (on the stack? seems dubious). 
+    for(size_t x = 0; x<width; x++)
+    {
+        for(size_t y = 0; y<height; y++)
+        {
+            for(size_t i = 0; i<channels.size(); i++)
+            {
+                // pixels are stored by row, then column. Chanel data is contiguous.
+                size_t index = channels.size()*(y*width + x)+i;
+                uint8_t pixelData = static_cast<uint8_t>(data[index]);
+                imageData[i][x].push_back(pixelData);
+            }
+        }
+    }
+
+    // pop the data in the matrices.
+    int i = 0;
+    for(Image::Channel ch : channels)
+    {
+        std::get<1>(*map.find(ch))->fill(imageData[i]);
+        i++;
+    }
+    // We're now officially an image!
 }
 
 ocr::Image::Format Image::getImageFormat()
@@ -45,44 +128,131 @@ void ocr::Image::writeToFile(std::string path)
     std::vector<Image::Channel> channels = getChannelsForFormat(format);
     throw "NOT IMPLEMENTED";
 
+    
+    std::unique_ptr<std::vector<uint8_t>> rawFlatVector = asRawFlatVector(format);
     // This function can't be written without being able to extract data from the matricies.
 
-    //int stbi_write_jpg(path.c_str() int w, int h, int comp, const void *data, int quality);
+    int returnValue = stbi_write_jpg(path.c_str(), width, height, COMP, rawFlatVector->data(), QUALITY);
 }
 
 std::unique_ptr<ocr::Vector<double>> ocr::Image::asFlatVector(Image::Format desiredFormat)
 {
-    // can't
-    throw "NOT IMPLEMENTED";
+    std::unique_ptr<std::vector<uint8_t>> rawFlatVector = asRawFlatVector(desiredFormat);
+
+    // convert the normal byte vector to our own vector.
+    auto doubleVec = std::make_unique<std::vector<double>>();
+
+    for(uint8_t byte : *rawFlatVector)
+    {
+        doubleVec->push_back(byte/255.0);
+    }
+
+    auto toReturn = std::make_unique<ocr::Vector<double>>();
+    toReturn->fill(doubleVec);
+    return toReturn;
+
 }
 
-std::optional<Matrix<std::uint8_t>>& ocr::Image::getChannel(Image::Channel ch)
+std::unique_ptr<std::vector<uint8_t>> ocr::Image::asRawFlatVector(Format desiredFormat)
 {
-    Matrix<std::uint8_t>* channel;
-    try
+    // the implementation for this upsets me. There's definitely a better way to do this.
+
+    std::vector<Image::Channel> channels = getChannelsForFormat(format);
+    std::vector<std::vector<uint8_t>> channelData;
+
+    for(Image::Channel ch : channels)
     {
-        channel = data.at(ch).get();
-    }
-    catch( std::out_of_range e)
-    {
-        auto toReturn = std::optional<Matrix<std::uint8_t>>();
-        return toReturn; // for some reason I couldn't make this one line?
+        auto matrix = getChannel(ch);
+        channelData.push_back(Matrix::flattenToVector(*matrix));
     }
 
-    // Now, is dereferencing a pointer to a large object just to make a reference of it bad?
-    // Probably. This might be dumb. Not sure. Just gonna move on for now.
-    auto toReturn = std::optional<Matrix<std::uint8_t>>(*channel);
+    size_t vectorSize = getChannelsForFormat(format).size()*width*height;
+    auto data = std::make_unique<std::vector<uint8_t>>();
+
+    for(int i = 0; i<width*height; i++)
+    {
+        // yeah, this is going to get ugly.
+        switch (desiredFormat)
+        {
+        case Image::Format::Grayscale:
+            // take the mean of other channels (except alpha)
+            int lim = channelData.size();
+
+            // this is a bit gross and hardcoded feeling...
+            if(format == Image::Format::RGBA) lim = 3;
+            uint16_t sum = 0;
+            for(size_t j = 0; j<lim; j++)
+            {
+                sum+=channelData[j][i];
+            }
+
+            data->push_back(static_cast<uint8_t>(sum/lim));
+            break;
+        case Image::Format::RGB:
+            if(format == Image::Format::Grayscale)
+            {
+                // for greyscale, just repeat the same value 3 times.
+                for(int j = 0; j<3; j++) data->push_back(channelData[0][i]);
+                break;
+            }
+
+            for(int j = 0; j<3; j++) data->push_back(channelData[j][i]);
+            break;
+
+        case Image::Format::RGBA:
+            // this is disgusting. I'm sure there's a better way but I'm tired and want to be done soon.
+            switch(format)
+            {
+            case Image::Format::Grayscale:
+                for(int j = 0; j<3; j++) data->push_back(channelData[0][i]);
+                data->push_back(0xFF); // full alpha
+                break;
+            case Image::Format::RGB:
+                for(int j = 0; j<3; j++) data->push_back(channelData[j][i]);
+                data->push_back(0xFF);
+                break;
+            case Image::Format::RGBA:
+                for(int j = 0; j<4; j++) data->push_back(channelData[j][i]);
+                break;
+
+            }
+            break;
+        
+        }
+    }
+
+    auto toReturn = std::make_unique<ocr::Vector<uint8_t>>(vectorSize);
+    toReturn->fill(data);
     return toReturn;
+}
+
+
+std::optional<Matrix<std::uint8_t>> ocr::Image::getChannel(Image::Channel ch)
+{
+
+    auto channelPair = data.find(ch);
+    if(channelPair == std::end(data)) 
+    {
+        return {};
+    }
+    Matrix<std::uint8_t>* channel = std::get<1>(*channelPair).get();
+    return std::optional(*channel);
 
 }
 
 std::unique_ptr<Vector<double>> ocr::Image::getChannelAsVector(Image::Channel ch)
 {
-    // can't.
-    throw "NOT IMPLEMENTED";
+    auto matrix = getChannel(ch);
+    if(!matrix.has_value())
+    {
+        return std::unique_ptr<Vector<double>>(nullptr);
+    }
+
+    return std::make_unique(Matrix::flattenToVector(*matrix));
+
 }
 
-std::vector<Image::Channel> ocr::Image::getChannelsForFormat(Format f)
+std::vector<Image::Channel> ocr::Image::getChannelsForFormat(Format f) 
 {
     // this feels like a silly way to do this.
     std::vector<Image::Channel> toReturn;
