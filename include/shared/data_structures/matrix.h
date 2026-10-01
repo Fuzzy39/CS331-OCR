@@ -1,7 +1,9 @@
 #ifndef MATRIX_H
 #define MATRIX_H
 
+#include <iostream>
 #include <vector>
+#include <memory>
 
 using namespace std;
 namespace ocr
@@ -14,7 +16,7 @@ namespace ocr
     {
     public:
         Matrix(size_t rows, size_t columns);
-        virtual void fill(vector<vector<T>>);
+        virtual void fill(const vector<vector<T>>& matrix);
         
         // computations
         Matrix<T> operator*(const Matrix<T>& other) const;
@@ -34,7 +36,7 @@ namespace ocr
         // flatten
         static Vector<T> flattenToVector(const Matrix<T>&);
     private:
-        vector<vector<T>> data;
+        unique_ptr<vector<vector<T>>> data;
         size_t rows;
         size_t columns;
     };
@@ -46,6 +48,7 @@ template <typename T>
 ocr::Matrix<T>::Matrix(std::size_t rows, std::size_t cols) {
     this->rows = rows;
     this->columns = cols;
+    this->data = make_unique<vector<vector<T>>>(rows, vector<int>(columns, T{})); // fill with default val
 }    
 
 template <typename T>
@@ -58,6 +61,15 @@ size_t ocr::Matrix<T>::getColumns() const {
     return this->columns;
 }
 
+template <typename T>
+void ocr::Matrix<T>::fill(const vector<vector<T>>& matrix) {
+    (*(this->data))[0][0] = matrix[0][0];  
+}
+
+template <typename T>
+vector<vector<T>> ocr::Matrix<T>::getData() const {
+    return *(this->data); // return copy
+}
 
 
 #endif
