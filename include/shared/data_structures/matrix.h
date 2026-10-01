@@ -5,7 +5,6 @@
 
 namespace ocr
 {
-
     template <typename T>
     class Vector;
 
@@ -14,7 +13,7 @@ namespace ocr
     {
     public:
         Matrix(int rows, int columns);
-        void fill(std::vector<std::vector<T>>);
+        virtual void fill(std::vector<std::vector<T>>);
         
         // computations
         Matrix<T> operator*(const Matrix<T>& other) const;
@@ -29,7 +28,10 @@ namespace ocr
 
         int getRows() const;
         int getColumns() const;
-        int getData() const;
+        std::vector<std::vector<T>> getData() const;
+
+        // flatten
+        static Vector<T> flattenToVector(const Matrix<T>&);
     private:
         std::vector<std::vector<T>> data;
         int rows;

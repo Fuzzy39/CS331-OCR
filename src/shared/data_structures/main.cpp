@@ -2,6 +2,7 @@
 #include "data_structures/vector.h"
 #include "data_structures/matrix.h"
 
-// matrix implementation
-
-
+int main(void) {
+    std::cout << "This is data_structures!\n" << std::endl;
+    return 0;
+}

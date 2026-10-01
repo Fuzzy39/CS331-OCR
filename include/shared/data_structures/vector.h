@@ -11,7 +11,6 @@ namespace ocr
     public:
         Vector(int size) : Matrix<T>(size, 1) {}
 
-        using Matrix<T>::fill;
         void fill(std::vector<T>);
 
         // computations
@@ -20,12 +19,10 @@ namespace ocr
         Vector<T> operator-(const Vector<T>& other) const;
         static Vector<T> transpose(const Vector<T>&);
         
+        using Matrix<T>::fill;
         using Matrix<T>::operator*;
         using Matrix<T>::operator+;
         using Matrix<T>::operator-;
-
-        // flatten
-        static Vector flattenToVector(const Matrix<T>&);
     };
 }
 

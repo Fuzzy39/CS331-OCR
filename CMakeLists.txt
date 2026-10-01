@@ -17,11 +17,9 @@ add_library(ocr_lib STATIC
 "src/shared/neural_network/neuralNetwork.cpp"
 )
 
-
 # Extract
 add_executable(extract "src/extract/main.cpp") # No includes for Extract specifically: it should be pretty simple, I'd think.
 target_link_libraries(extract ocr_lib)
-
 
 # Train
 add_executable(train "src/train/main.cpp")
@@ -32,3 +30,8 @@ target_link_libraries(train ocr_lib)
 add_executable(classify "src/classify/main.cpp")
 target_include_directories(classify PUBLIC "include/classify")
 target_link_libraries(classify ocr_lib)
+
+# Shared (Testing)
+add_executable(shared "src/shared/data_structures/main.cpp")
+target_include_directories(shared PUBLIC "include/shared")
+target_link_libraries(shared ocr_lib)
