@@ -3,6 +3,7 @@
 
 #include <vector>
 
+using namespace std;
 namespace ocr
 {
     template <typename T>
@@ -12,8 +13,8 @@ namespace ocr
     class Matrix 
     {
     public:
-        Matrix(int rows, int columns);
-        virtual void fill(std::vector<std::vector<T>>);
+        Matrix(size_t rows, size_t columns);
+        virtual void fill(vector<vector<T>>);
         
         // computations
         Matrix<T> operator*(const Matrix<T>& other) const;
@@ -26,17 +27,37 @@ namespace ocr
         Matrix<T> operator+(const Vector<T>& other) const;
         Matrix<T> operator-(const Vector<T>& other) const;
 
-        int getRows() const;
-        int getColumns() const;
-        std::vector<std::vector<T>> getData() const;
+        size_t getRows() const;
+        size_t getColumns() const;
+        vector<vector<T>> getData() const;
 
         // flatten
         static Vector<T> flattenToVector(const Matrix<T>&);
     private:
-        std::vector<std::vector<T>> data;
-        int rows;
-        int columns;
+        vector<vector<T>> data;
+        size_t rows;
+        size_t columns;
     };
 }
+
+// definitions since its a template class so pair it right under method/data declerations
+
+template <typename T>
+ocr::Matrix<T>::Matrix(std::size_t rows, std::size_t cols) {
+    this->rows = rows;
+    this->columns = cols;
+}    
+
+template <typename T>
+size_t ocr::Matrix<T>::getRows() const {
+    return this->rows;
+}
+
+template <typename T>
+size_t ocr::Matrix<T>::getColumns() const {
+    return this->columns;
+}
+
+
 
 #endif
