@@ -2,7 +2,6 @@
 #include "data_structures/vector.h"
 #include "data_structures/matrix.h"
 
-
 int main(void) {
 
     // matrix tests
@@ -49,5 +48,16 @@ int main(void) {
     std::cout << "the 3rd index value is " << transposed_vector[3] << "." << std::endl;
     std::cout << "rows " << transposed_vector.getRows() << " and columns " << transposed_vector.getColumns() << endl;
 
+    ocr::Vector<int> vector1(2);
+    vector1.fill({1,2});
+
+    ocr::Vector<int> vector2(2);
+    vector2.fill({3,5});
+
+    ocr::Vector<int> vector3 = vector1 - vector2;
+    std::cout << "vector 3 idx 1 is " << vector3[1] << endl;
+
     return 0;
 }
+
+

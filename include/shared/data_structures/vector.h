@@ -20,11 +20,12 @@ namespace ocr
         void fill(const vector<T>& vctr); // defined
 
         // computations
-        T operator*(const Vector<T>& other) const;
-        Vector<T> operator+(const Vector<T>& other) const;
-        Vector<T> operator-(const Vector<T>& other) const;
+        Vector<T> operator*(const Vector<T>& other) const; 
+        Vector<T> operator+(const Vector<T>& other) const; // defined
+        Vector<T> operator-(const Vector<T>& other) const; // defined
+        
         void transpose(); // defined
-        static Vector<T> transpose(const Vector<T>&); 
+        static Vector<T> transpose(const Vector<T>&); // defined
         
         size_t getSize() const; // defined
         
@@ -115,6 +116,65 @@ ocr::Vector<T> ocr::Vector<T>::transpose(const Vector<T>& ref) {
     trspdVctr.transpose();
     return trspdVctr;
 }
+
+// operations
+template <typename T>
+ocr::Vector<T> ocr::Vector<T>::operator+(const Vector<T>& other) const {
+    // vectors much be same dimensions
+    if (other.getRows() != this->rows || other.getColumns() != this->columns){
+        throw logic_error("vector dimensions do not match.");
+    }
+
+    ocr::Vector<T> resVctr(other.size);
+    if (this->columns != 1) { // transpose vector to be vertical
+        resVctr.transpose();
+    }
+
+    for (int idx = 0; idx < this->size; idx++){
+        resVctr[idx] = (*this)[idx] + other[idx];
+    }
+
+    return resVctr;
+}
+
+template <typename T>
+ocr::Vector<T> ocr::Vector<T>::operator-(const Vector<T>& other) const {
+    // vectors much be same dimensions
+    if (other.getRows() != this->rows || other.getColumns() != this->columns){
+        throw logic_error("vector dimensions do not match.");
+    }
+
+    ocr::Vector<T> resVctr(other.size);
+    if (this->columns != 1) { // transpose vector to be vertical
+        resVctr.transpose();
+    }
+
+    for (int idx = 0; idx < this->size; idx++){
+        resVctr[idx] = (*this)[idx] - other[idx];
+    }
+
+    return resVctr;
+}
+
+template <typename T>
+ocr::Vector<T> ocr::Vector<T>::operator*(const Vector<T>& other) const {
+    
+    // vectors much be same dimensions
+    // if (this->rows == other->getColumns() && this->columns == other->getRows()) {
+
+    // }
+
+    // ocr::Vector<T> resVctr(other.size);
+    // if (this->columns != 1) { // transpose vector to be vertical
+    //     resVctr.transpose();
+    // }
+
+    // for (int idx = 0; idx < this->size; idx++){
+    //     resVctr[idx] = (*this)[idx] - other[idx];
+    // }
+
+    // return resVctr;
+}  
 
 
 
