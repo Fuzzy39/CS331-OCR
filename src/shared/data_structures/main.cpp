@@ -7,8 +7,8 @@ int main(void) {
     ocr::Matrix<int> max_matrix(3,4);
     std::cout << max_matrix.getRows() << std::endl;
 
-    vector<int> row_1 = {1,2,3};
-    vector<int> row_2 = {4,5,6};
+    vector<int> row_1 = {1,2,3,4};
+    vector<int> row_2 = {4,5,6,6};
     vector<int> row_3 = {7,8,9};
 
     vector<vector<int>> my_matrix = {row_1, row_2, row_3};

@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <memory>
+#include <stdexcept>
 
 using namespace std;
 namespace ocr
@@ -16,7 +17,7 @@ namespace ocr
     {
     public:
         Matrix(size_t rows, size_t columns);
-        virtual void fill(const vector<vector<T>>& matrix);
+        virtual void fill(const vector<vector<T>>& matrix); // defined
         
         // computations
         Matrix<T> operator*(const Matrix<T>& other) const;
@@ -29,9 +30,9 @@ namespace ocr
         Matrix<T> operator+(const Vector<T>& other) const;
         Matrix<T> operator-(const Vector<T>& other) const;
 
-        size_t getRows() const;
-        size_t getColumns() const;
-        vector<vector<T>> getData() const;
+        size_t getRows() const; // defined
+        size_t getColumns() const; // defined
+        vector<vector<T>> getData() const; // defined
 
         // flatten
         static Vector<T> flattenToVector(const Matrix<T>&);
@@ -63,7 +64,22 @@ size_t ocr::Matrix<T>::getColumns() const {
 
 template <typename T>
 void ocr::Matrix<T>::fill(const vector<vector<T>>& matrix) {
-    (*(this->data))[0][0] = matrix[0][0];  
+    // need to validate matrix dimensions to ensure it fits object rows/columns requirements
+    // therefore, I can't just do *(this->data) = matrix
+    if (matrix.size() != rows) {
+        string error = "Error: expected " + to_string(rows) + " rows but received " + to_string(matrix.size()) + " instead.";
+        throw logic_error(error);
+    } 
+
+    for (int row = 0; row < rows; row++){
+        if (matrix[row].size() != columns) {
+             string error = "Error: expected " + to_string(columns) + " columns but received " + to_string(matrix[row].size()) + " instead.";
+        throw logic_error(error);
+        }
+        for (int col = 0; col < columns; col++) {
+            (*(this->data))[row][col] = matrix[row][col];
+        }
+    }
 }
 
 template <typename T>
