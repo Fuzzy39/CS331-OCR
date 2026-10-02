@@ -16,11 +16,14 @@ namespace ocr
     class Matrix 
     {
     public:
-        Matrix(size_t rows, size_t columns);
+        Matrix(size_t rows, size_t columns); // defined
         virtual void fill(const vector<vector<T>>& matrix); // defined
         
+        // access
+        Vector<T>& operator[](int idx); // defined
+
         // computations
-        Matrix<T> operator*(const Matrix<T>& other) const;
+        Matrix<T> operator*(const Matrix<T>& other) const; 
         Matrix<T> operator+(const Matrix<T>& other) const;
         Matrix<T> operator-(const Matrix<T>& other) const;
         static Matrix<T> transpose(const Matrix<T>&);
@@ -36,8 +39,8 @@ namespace ocr
 
         // flatten
         static Vector<T> flattenToVector(const Matrix<T>&);
-    private:
-        unique_ptr<vector<vector<T>>> data;
+    protected: // protected so vector class can access it
+        shared_ptr<vector<vector<T>>> data;
         size_t rows;
         size_t columns;
     };
@@ -49,8 +52,18 @@ template <typename T>
 ocr::Matrix<T>::Matrix(std::size_t rows, std::size_t cols) {
     this->rows = rows;
     this->columns = cols;
-    this->data = make_unique<vector<vector<T>>>(rows, vector<int>(columns, T{})); // fill with default val
+    this->data = make_shared<vector<vector<T>>>(rows, vector<T>(columns, T{})); // fill with default val
 }    
+
+// template <typename T>
+// ocr::Vector<T>& ocr::Matrix<T>::operator[](int idx) {
+//     if (idx < 0 || idx >= rows) {
+//         throw out_of_range("index " + to_string(idx) + " is out of range of size " + to_string(rows));
+//     }
+//     ocr::Vector<T> newVector = ocr::Vector<T>(columns);
+//     newVector.fill((*(this->data))[row]);
+//     return newVector;
+// }
 
 template <typename T>
 size_t ocr::Matrix<T>::getRows() const {
@@ -87,5 +100,19 @@ vector<vector<T>> ocr::Matrix<T>::getData() const {
     return *(this->data); // return copy
 }
 
+// template <typename T>
+// ocr::Vector<T> ocr::Matrix<T>::flattenToVector(const Matrix<T>&) {
+//     ocr::Vector<T> resVector<T>(row * columns);
+// }
+
+// template <typename T>
+// ocr::Matrix<T> ocr::Matrix<T>::transpose(const Matrix<T>& ref) {
+//     ocr::Matrix<T> newMatrix(ref.columns, ref.rows);
+//     for (int row = 0 ; row < ref.rows ; row++){
+//         for (int col = 0; col < ref.columns ; col++){
+//             (*(newMatrix.getData()))[row][col] = (*(ref.getData()))[col][row];
+//         }
+//     }
+// }
 
 #endif
