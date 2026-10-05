@@ -17,21 +17,21 @@ namespace ocr
     {
     public:
         Matrix(size_t rows, size_t columns); // defined
-        virtual void fill(const vector<vector<T>>& matrix); // defined
+        void fill(const vector<vector<T>>& matrix); // defined
         
         // access
-        Vector<T>& operator[](int idx); // defined
+        Vector<T> operator[](int idx); // defined
 
         // computations
         Matrix<T> operator*(const Matrix<T>& other) const; 
         Matrix<T> operator+(const Matrix<T>& other) const;
         Matrix<T> operator-(const Matrix<T>& other) const;
         static Matrix<T> transpose(const Matrix<T>&);
-
+        
         // overloaded computations with vector
-        Matrix<T> operator*(const Vector<T>& other) const;
-        Matrix<T> operator+(const Vector<T>& other) const;
-        Matrix<T> operator-(const Vector<T>& other) const;
+        // Matrix<T> operator*(const Vector<T>& other) const;
+        // Matrix<T> operator+(const Vector<T>& other) const;
+        // Matrix<T> operator-(const Vector<T>& other) const;
 
         size_t getRows() const; // defined
         size_t getColumns() const; // defined
@@ -55,15 +55,15 @@ ocr::Matrix<T>::Matrix(std::size_t rows, std::size_t cols) {
     this->data = make_shared<vector<vector<T>>>(rows, vector<T>(columns, T{})); // fill with default val
 }    
 
-// template <typename T>
-// ocr::Vector<T>& ocr::Matrix<T>::operator[](int idx) {
-//     if (idx < 0 || idx >= rows) {
-//         throw out_of_range("index " + to_string(idx) + " is out of range of size " + to_string(rows));
-//     }
-//     ocr::Vector<T> newVector = ocr::Vector<T>(columns);
-//     newVector.fill((*(this->data))[row]);
-//     return newVector;
-// }
+template <typename T>
+ocr::Vector<T> ocr::Matrix<T>::operator[](int idx) {
+    if (idx < 0 || idx >= rows) {
+        throw out_of_range("index " + to_string(idx) + " is out of range of size " + to_string(rows));
+    }
+    ocr::Vector<T> newVector = ocr::Vector<T>(columns);
+    newVector.fill((*(this->data))[idx]);
+    return newVector;
+}
 
 template <typename T>
 size_t ocr::Matrix<T>::getRows() const {
@@ -114,5 +114,22 @@ vector<vector<T>> ocr::Matrix<T>::getData() const {
 //         }
 //     }
 // }
+
+template <typename T>
+ocr::Matrix<T> ocr::Matrix<T>::operator+(const ocr::Matrix<T>& other) const {
+    // for now, matrices must be the same dimension
+    if (other.getRows() != this->rows || other.getColumns() != this->columns){
+        throw logic_error("vector dimensions do not match");
+    }
+
+    ocr::Matrix<T> resMtrx(this->rows, this->columns);
+    for (int row = 0; row < this->rows; row++) {
+        for (int col = 0; col < this->columns; col++){
+            resMtrx[row][col] = (*this)[row][col] + other[row][col];
+        }
+    }
+
+    return resMtrx;
+}
 
 #endif

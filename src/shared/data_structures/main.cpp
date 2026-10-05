@@ -27,35 +27,58 @@ int main(void) {
 
     // vector tests
 
-    ocr::Vector<int> max_vector(4);
-    std::cout << "size is " << max_vector.getSize() << std::endl;
+    // ocr::Vector<int> max_vector(4);
+    // std::cout << "size is " << max_vector.getSize() << std::endl;
 
-    // fill
-    max_vector.fill({1,2,3,4});
+    // // fill
+    // max_vector.fill({1,2,3,4});
 
-    // get element
-    std::cout << "the 2nd index value is " << max_vector[2] << "." << std::endl;
-    std::cout << "rows " << max_vector.getRows() << " and columns " << max_vector.getColumns() << endl;
+    // // get element
+    // std::cout << "the 2nd index value is " << max_vector[2] << "." << std::endl;
+    // std::cout << "rows " << max_vector.getRows() << " and columns " << max_vector.getColumns() << endl;
 
-    // transpose self
-    // max_vector.transpose();
-    // max_vector.transpose();
-    // max_vector.transpose();
+    // // transpose self
+    // // max_vector.transpose();
+    // // max_vector.transpose();
+    // // max_vector.transpose();
 
-    // create a new transposition vector
-    ocr::Vector<int> transposed_vector = ocr::Vector<int>::transpose(max_vector);
+    // // create a new transposition vector
+    // ocr::Vector<int> transposed_vector = ocr::Vector<int>::transpose(max_vector);
 
-    std::cout << "the 3rd index value is " << transposed_vector[3] << "." << std::endl;
-    std::cout << "rows " << transposed_vector.getRows() << " and columns " << transposed_vector.getColumns() << endl;
+    // std::cout << "the 3rd index value is " << transposed_vector[3] << "." << std::endl;
+    // std::cout << "rows " << transposed_vector.getRows() << " and columns " << transposed_vector.getColumns() << endl;
 
-    ocr::Vector<int> vector1(2);
-    vector1.fill({1,2});
+    // ocr::Vector<int> vector1(2);
+    // vector1.fill({1,2});
 
-    ocr::Vector<int> vector2(2);
-    vector2.fill({3,5});
+    // ocr::Vector<int> vector2(2);
+    // vector2.fill({3,5});
 
-    ocr::Vector<int> vector3 = vector1 - vector2;
-    std::cout << "vector 3 idx 1 is " << vector3[1] << endl;
+    // ocr::Vector<int> vector3 = vector1 - vector2;
+    // std::cout << "vector 3 idx 1 is " << vector3[1] << endl;
+
+    
+
+    // more matrix tests
+
+    ocr::Matrix<int> matrix_one(2,2);
+    ocr::Matrix<int> matrix_two(2,2);
+
+    vector<vector<int>> m1 = {{1,2},{3,4}};
+    vector<vector<int>> m2 = {{5,6},{7,8}};
+
+    matrix_one.fill(m1);
+    matrix_two.fill(m2);
+
+    ocr::Vector<int> my_vec = matrix_one[0];
+    std::cout << " 1 index is " << my_vec[0] << "." << std::endl; 
+
+    int val = matrix_one[0][0];
+    std::cout << " 1 0 index is " << val << "." << std::endl; 
+    
+    // ocr::Matrix<int> matrix_three = matrix_one + matrix_two;
+
+
 
     return 0;
 }

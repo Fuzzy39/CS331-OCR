@@ -6,6 +6,8 @@
 
 #include "data_structures/matrix.h"
 
+// to row, to horz 
+
 using namespace std;
 namespace ocr
 {
