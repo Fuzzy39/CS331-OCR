@@ -6,7 +6,7 @@
 
 #include "data_structures/matrix.h"
 
-// to row, to horz 
+
 
 using namespace std;
 namespace ocr
@@ -16,24 +16,17 @@ namespace ocr
     {
     public:
         Vector(size_t size); // defined
-        
+        Vector(const Matrix<T>& matrix); // implicit type conversion
+
         T& operator[](int idx); // defined
         T operator[](int idx) const; // const non-ref defined
         void fill(const vector<T>& vctr); // defined
 
-        // computations
-        Vector<T> operator*(const Vector<T>& other) const; 
-        Vector<T> operator+(const Vector<T>& other) const; // defined
-        Vector<T> operator-(const Vector<T>& other) const; // defined
         
         void transpose(); // defined
         static Vector<T> transpose(const Vector<T>&); // defined
-        
         size_t getSize() const; // defined
-        
-        using Matrix<T>::operator*;
-        using Matrix<T>::operator+;
-        using Matrix<T>::operator-;
+
     private:
         size_t size;
     };
@@ -43,6 +36,17 @@ namespace ocr
 template <typename T>
 ocr::Vector<T>::Vector(size_t size) : ocr::Matrix<T>(1,size) {
     this->size = size;
+}
+
+template <typename T>
+ocr::Vector<T>::Vector(const Matrix<T>& matrix) : ocr::Matrix<T>(matrix.getRows(), matrix.getColumns()) {
+    if (matrix.getRows() != 1 && matrix.getColumns() != 1) {
+        string error = "Unable to convert to vector of matrix " + to_string(matrix.getRows()) + " x " + to_string(matrix.getColumns()) + ". At least one dimension needs to be equal to 1.";
+        throw logic_error(error);
+    }
+    this->size = matrix.getRows() * matrix.getColumns();
+
+    this->data = make_shared<vector<vector<T>>>(matrix.getData());
 }
 
 template <typename T>
@@ -118,76 +122,5 @@ ocr::Vector<T> ocr::Vector<T>::transpose(const Vector<T>& ref) {
     trspdVctr.transpose();
     return trspdVctr;
 }
-
-// operations
-template <typename T>
-ocr::Vector<T> ocr::Vector<T>::operator+(const Vector<T>& other) const {
-    // vectors much be same dimensions
-    if (other.getRows() != this->rows || other.getColumns() != this->columns){
-        throw logic_error("vector dimensions do not match.");
-    }
-
-    ocr::Vector<T> resVctr(other.size);
-    if (this->columns != 1) { // transpose vector to be vertical
-        resVctr.transpose();
-    }
-
-    for (int idx = 0; idx < this->size; idx++){
-        resVctr[idx] = (*this)[idx] + other[idx];
-    }
-
-    return resVctr;
-}
-
-template <typename T>
-ocr::Vector<T> ocr::Vector<T>::operator-(const Vector<T>& other) const {
-    // vectors much be same dimensions
-    if (other.getRows() != this->rows || other.getColumns() != this->columns){
-        throw logic_error("vector dimensions do not match.");
-    }
-
-    ocr::Vector<T> resVctr(other.size);
-    if (this->columns != 1) { // transpose vector to be vertical
-        resVctr.transpose();
-    }
-
-    for (int idx = 0; idx < this->size; idx++){
-        resVctr[idx] = (*this)[idx] - other[idx];
-    }
-
-    return resVctr;
-}
-
-template <typename T>
-ocr::Vector<T> ocr::Vector<T>::operator*(const Vector<T>& other) const {
-    
-    // vectors much be same dimensions
-    // if (this->rows == other->getColumns() && this->columns == other->getRows()) {
-
-    // }
-
-    // ocr::Vector<T> resVctr(other.size);
-    // if (this->columns != 1) { // transpose vector to be vertical
-    //     resVctr.transpose();
-    // }
-
-    // for (int idx = 0; idx < this->size; idx++){
-    //     resVctr[idx] = (*this)[idx] - other[idx];
-    // }
-
-    // return resVctr;
-}  
-
-
-
-
-
-
-
-
-
-
-
-
 
 #endif

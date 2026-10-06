@@ -36,7 +36,7 @@ namespace ocr
         vector<vector<T>> getData() const; // defined
 
         // flatten
-        static Vector<T> flattenToVector(const Matrix<T>&);
+        static Vector<T> flattenToVector(const Matrix<T>&); // defined
 
         // visualize
         void visualize() const; // defined
