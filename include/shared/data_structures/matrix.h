@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <vector>
+#include <initializer_list>
 #include <memory>
 #include <stdexcept>
 
@@ -17,8 +18,10 @@ namespace ocr
     {
     public:
         Matrix(size_t rows, size_t columns); // defined
+        Matrix(const initializer_list<initializer_list<T>>& ref); // defined
+
         void fill(const vector<vector<T>>& matrix); // defined
-        
+
         // access
         Vector<T> operator[](int idx); // defined
 
@@ -55,6 +58,25 @@ ocr::Matrix<T>::Matrix(std::size_t rows, std::size_t cols) {
     this->columns = cols;
     this->data = make_shared<vector<vector<T>>>(rows, vector<T>(columns, T{})); // fill with default val
 }    
+
+template <typename T>
+ocr::Matrix<T>::Matrix(const initializer_list<initializer_list<T>>& ref) {
+    this->rows = ref.size();
+    size_t expected_col_size = ref.begin()->size();
+
+    for (const initializer_list<T>& row : ref){
+        if (row.size() != expected_col_size){
+            throw logic_error("inconsistent matrix dimensions.");
+        }
+    }
+
+    this->columns = expected_col_size;
+    this->data = make_shared<vector<vector<T>>>();
+
+    for (const initializer_list<T>& row : ref){
+        (*(this->data)).push_back(row);
+    }
+}
 
 template <typename T>
 ocr::Vector<T> ocr::Matrix<T>::operator[](int idx) {

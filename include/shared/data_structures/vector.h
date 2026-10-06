@@ -2,11 +2,10 @@
 #define VECTOR_H
 #include <iostream>
 #include <vector>
+#include <initializer_list>
 #include <stdexcept>
 
 #include "data_structures/matrix.h"
-
-
 
 using namespace std;
 namespace ocr
@@ -16,6 +15,7 @@ namespace ocr
     {
     public:
         Vector(size_t size); // defined
+        Vector(const initializer_list<T>& ref);
         Vector(const Matrix<T>& matrix); // implicit type conversion
 
         T& operator[](int idx); // defined
@@ -39,13 +39,21 @@ ocr::Vector<T>::Vector(size_t size) : ocr::Matrix<T>(1,size) {
 }
 
 template <typename T>
+ocr::Vector<T>::Vector(const initializer_list<T>& ref) : ocr::Matrix<T>(1,ref.size()){
+    this->size = ref.size();
+    this->data = make_shared<vector<vector<T>>>(1, vector<T>{});
+    for (const T& val : ref){
+        (*(this->data))[0].push_back(val);
+    }
+}
+
+template <typename T>
 ocr::Vector<T>::Vector(const Matrix<T>& matrix) : ocr::Matrix<T>(matrix.getRows(), matrix.getColumns()) {
     if (matrix.getRows() != 1 && matrix.getColumns() != 1) {
         string error = "Unable to convert to vector of matrix " + to_string(matrix.getRows()) + " x " + to_string(matrix.getColumns()) + ". At least one dimension needs to be equal to 1.";
         throw logic_error(error);
     }
     this->size = matrix.getRows() * matrix.getColumns();
-
     this->data = make_shared<vector<vector<T>>>(matrix.getData());
 }
 

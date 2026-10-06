@@ -197,5 +197,22 @@ int main(void)
 
     cout << "Vector and matrix mixed-operation tests passed.\n";
 
+    // initialization list test
+    ocr::Matrix<int> i1 = {{1,2},{3,4}};
+    ocr::Matrix<int> i2 = {{5,6},{7,8}};
+
+    i1.visualize();
+
+    ocr::Matrix<int> i3 = i1 * i2;
+
+    i3.visualize();
+
+    ocr::Vector<int> v1 = {1,2,3,4};
+    ocr::Vector<int> v2 = {4,5,1,5};
+
+    ocr::Vector<int> v3 = v1 + v2;
+
+    v3.visualize();
+
     return 0;
 }
