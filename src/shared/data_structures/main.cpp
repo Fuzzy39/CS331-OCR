@@ -85,8 +85,10 @@ int main(void) {
 
    ocr::Matrix<int>::transpose(matrix_three).visualize();
 
+   ocr::Vector<int> matrix_to_vector = ocr::Matrix<int>::flattenToVector(matrix_three);
+   matrix_to_vector.visualize();
     
-
+   
     return 0;
 }
 
