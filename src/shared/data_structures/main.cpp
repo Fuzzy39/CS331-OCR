@@ -64,21 +64,28 @@ int main(void) {
     ocr::Matrix<int> matrix_one(2,2);
     ocr::Matrix<int> matrix_two(2,2);
 
-    vector<vector<int>> m1 = {{1,2},{3,4}};
-    vector<vector<int>> m2 = {{5,6},{7,8}};
+    vector<vector<int>> m1 = {{1,2},{3,1}};
+    vector<vector<int>> m2 = {{5,2},{7,8}};
 
     matrix_one.fill(m1);
     matrix_two.fill(m2);
 
     ocr::Vector<int> my_vec = matrix_one[0];
-    std::cout << " 1 index is " << my_vec[0] << "." << std::endl; 
+    // std::cout << " 1 index is " << my_vec[0] << "." << std::endl; 
 
     int val = matrix_one[0][0];
-    std::cout << " 1 0 index is " << val << "." << std::endl; 
+    // std::cout << " 1 0 index is " << val << "." << std::endl; 
     
-    // ocr::Matrix<int> matrix_three = matrix_one + matrix_two;
+    ocr::Matrix<int> matrix_three = matrix_one * matrix_two;
+    std::cout << " 0 0 index is " << matrix_three[0][0] << "." << std::endl;
+    
+    matrix_three.visualize();
 
+    // transpose test
 
+   ocr::Matrix<int>::transpose(matrix_three).visualize();
+
+    
 
     return 0;
 }

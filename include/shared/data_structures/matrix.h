@@ -22,16 +22,14 @@ namespace ocr
         // access
         Vector<T> operator[](int idx); // defined
 
+        // set data
+        void set(int row, int col, T val);
+
         // computations
-        Matrix<T> operator*(const Matrix<T>& other) const; 
-        Matrix<T> operator+(const Matrix<T>& other) const;
-        Matrix<T> operator-(const Matrix<T>& other) const;
+        Matrix<T> operator*(const Matrix<T>& other) const; // defined
+        Matrix<T> operator+(const Matrix<T>& other) const; // defined
+        Matrix<T> operator-(const Matrix<T>& other) const; // defined
         static Matrix<T> transpose(const Matrix<T>&);
-        
-        // overloaded computations with vector
-        // Matrix<T> operator*(const Vector<T>& other) const;
-        // Matrix<T> operator+(const Vector<T>& other) const;
-        // Matrix<T> operator-(const Vector<T>& other) const;
 
         size_t getRows() const; // defined
         size_t getColumns() const; // defined
@@ -39,6 +37,9 @@ namespace ocr
 
         // flatten
         static Vector<T> flattenToVector(const Matrix<T>&);
+
+        // visualize
+        void visualize() const;
     protected: // protected so vector class can access it
         shared_ptr<vector<vector<T>>> data;
         size_t rows;
@@ -63,6 +64,26 @@ ocr::Vector<T> ocr::Matrix<T>::operator[](int idx) {
     ocr::Vector<T> newVector = ocr::Vector<T>(columns);
     newVector.fill((*(this->data))[idx]);
     return newVector;
+}
+
+template <typename T>
+void ocr::Matrix<T>::visualize() const {
+    for (int row = 0; row < this->rows; row++){
+        for (int col = 0; col < this->columns; col++){
+            cout << (*(this->data))[row][col] << " ";
+        }
+        cout << "\n";
+    }
+}
+
+template <typename T>
+void ocr::Matrix<T>::set(int row, int col, T val){
+    if ((row < 0 || row >= static_cast<int>(this->rows)) ||
+        (col < 0 || col >= static_cast<int>(this->columns))) {
+        string error = " index of [" + to_string(row) + "][" + to_string(col) + "] is out of bounds of dimensions " + to_string(this->rows) + " x " + to_string(this->columns) + ".";
+        throw out_of_range(error);
+    }
+    (*(this->data))[row][col] = val;
 }
 
 template <typename T>
@@ -125,11 +146,68 @@ ocr::Matrix<T> ocr::Matrix<T>::operator+(const ocr::Matrix<T>& other) const {
     ocr::Matrix<T> resMtrx(this->rows, this->columns);
     for (int row = 0; row < this->rows; row++) {
         for (int col = 0; col < this->columns; col++){
-            resMtrx[row][col] = (*this)[row][col] + other[row][col];
+            T new_val = (*(this->data))[row][col] + other.getData()[row][col];
+            resMtrx.set(row, col, new_val);
         }
     }
 
     return resMtrx;
+}
+
+template <typename T>
+ocr::Matrix<T> ocr::Matrix<T>::operator-(const ocr::Matrix<T>& other) const {
+    // for now, matrices must be the same dimension
+    if (other.getRows() != this->rows || other.getColumns() != this->columns){
+        throw logic_error("vector dimensions do not match");
+    }
+
+    ocr::Matrix<T> resMtrx(this->rows, this->columns);
+    for (int row = 0; row < this->rows; row++) {
+        for (int col = 0; col < this->columns; col++){
+            T new_val = (*(this->data))[row][col] - other.getData()[row][col];
+            resMtrx.set(row, col, new_val);
+        }
+    }
+
+    return resMtrx;
+}
+
+template <typename T>
+ocr::Matrix<T> ocr::Matrix<T>::operator*(const ocr::Matrix<T>& other) const {
+    // matrices can be different dimensions but still must be compatible
+    if (this->columns != other.getRows()){
+        string error = "Matrix dimensions of " + to_string(this->rows) + " x " +
+            to_string(this->columns) + " and " + to_string(other.getRows()) + " x " +
+            to_string(other.getColumns()) + " are not compatible.";
+        throw logic_error(error);
+    }
+
+    ocr::Matrix<T> new_matrix(this->rows, other.getColumns());
+    const vector<vector<T>> other_data = other.getData();
+
+    for (size_t row = 0; row < this->rows; row++) {
+        for (size_t col = 0; col < other.getColumns(); col++){
+            T acc_value = 0;
+            for (size_t idx = 0; idx < this->columns; idx++) {
+                acc_value += (*(this->data))[row][idx] * other_data[idx][col];
+            }
+            new_matrix.set(static_cast<int>(row), static_cast<int>(col), acc_value);
+        }
+    }
+    return new_matrix;
+}
+
+template <typename T>
+ocr::Matrix<T> ocr::Matrix<T>::transpose(const ocr::Matrix<T>& other) {
+    Matrix<T> transposed_matrix(other.getColumns(), other.getRows());
+
+    for (size_t row = 0; row < other.getRows(); row++){
+        for (size_t col = 0; col < other.getColumns(); col++){
+            transposed_matrix.set(col,row,other.getData()[row][col]);
+        }
+    }
+
+    return transposed_matrix;
 }
 
 #endif
