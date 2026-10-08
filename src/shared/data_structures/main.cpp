@@ -63,8 +63,8 @@ int main(void)
     ocr::Matrix<int> matrix_one(2, 2);
     ocr::Matrix<int> matrix_two(2, 2);
 
-    vector<vector<int>> m1 = {{1, 2}, {3, 1}};
-    vector<vector<int>> m2 = {{5, 2}, {7, 8}};
+    std::vector<std::vector<int>> m1 = {{1, 2}, {3, 1}};
+    std::vector<std::vector<int>> m2 = {{5, 2}, {7, 8}};
 
     matrix_one.fill(m1);
     matrix_two.fill(m2);
@@ -117,8 +117,8 @@ int main(void)
     ocr::Matrix<int> vector_vector_result = vv1 * vv2;
 
     if (vector_vector_result.getData() !=
-        vector<vector<int>>{{3, 4, 5}, {6, 8, 10}}) {
-        cerr << "Vector * vector matrix test failed.\n";
+        std::vector<std::vector<int>>{{3, 4, 5}, {6, 8, 10}}) {
+        std::cerr << "Vector * vector matrix test failed.\n";
         return 1;
     }
 
@@ -135,8 +135,8 @@ int main(void)
     if (vector_matrix_vector_result.getRows() != 1 ||
         vector_matrix_vector_result.getColumns() != 3 ||
         vector_matrix_vector_result.getData() !=
-            vector<vector<int>>{{15, 18, 21}}) {
-        cerr << "Vector * matrix vector test failed.\n";
+            std::vector<std::vector<int>>{{15, 18, 21}}) {
+        std::cerr << "Vector * matrix vector test failed.\n";
         return 1;
     }
 
@@ -154,8 +154,8 @@ int main(void)
         vector_matrix_matrix * vector_matrix_matrix_operand;
 
     if (vector_matrix_matrix_result.getData() !=
-        vector<vector<int>>{{3, 4, 5}, {6, 8, 10}}) {
-        cerr << "Vector * matrix matrix test failed.\n";
+        std::vector<std::vector<int>>{{3, 4, 5}, {6, 8, 10}}) {
+        std::cerr << "Vector * matrix matrix test failed.\n";
         return 1;
     }
 
@@ -174,8 +174,8 @@ int main(void)
     if (matrix_vector_vector_result.getRows() != 2 ||
         matrix_vector_vector_result.getColumns() != 1 ||
         matrix_vector_vector_result.getData() !=
-            vector<vector<int>>{{50}, {122}}) {
-        cerr << "Matrix * vector vector test failed.\n";
+            std::vector<std::vector<int>>{{50}, {122}}) {
+        std::cerr << "Matrix * vector vector test failed.\n";
         return 1;
     }
 
@@ -190,12 +190,12 @@ int main(void)
         matrix_vector_matrix_operand * matrix_vector_matrix;
 
     if (matrix_vector_matrix_result.getData() !=
-        vector<vector<int>>{{3, 4, 5}, {6, 8, 10}}) {
-        cerr << "Matrix * vector matrix test failed.\n";
+        std::vector<std::vector<int>>{{3, 4, 5}, {6, 8, 10}}) {
+        std::cerr << "Matrix * vector matrix test failed.\n";
         return 1;
     }
 
-    cout << "Vector and matrix mixed-operation tests passed.\n";
+    std::cout << "Vector and matrix mixed-operation tests passed.\n" << std::endl;
 
     // initialization list test
     ocr::Matrix<int> i1 = {{1,2},{3,4}};

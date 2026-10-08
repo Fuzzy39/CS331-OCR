@@ -7,7 +7,6 @@
 
 #include "data_structures/matrix.h"
 
-using namespace std;
 namespace ocr
 {
     template <typename T>
@@ -15,14 +14,13 @@ namespace ocr
     {
     public:
         Vector(size_t size); // defined
-        Vector(const initializer_list<T>& ref);
+        Vector(const std::initializer_list<T>& ref);
         Vector(const Matrix<T>& matrix); // implicit type conversion
 
         T& operator[](int idx); // defined
         T operator[](int idx) const; // const non-ref defined
-        void fill(const vector<T>& vctr); // defined
+        void fill(const std::vector<T>& vctr); // defined
 
-        
         void transpose(); // defined
         static Vector<T> transpose(const Vector<T>&); // defined
         size_t getSize() const; // defined
@@ -39,9 +37,9 @@ ocr::Vector<T>::Vector(size_t size) : ocr::Matrix<T>(1,size) {
 }
 
 template <typename T>
-ocr::Vector<T>::Vector(const initializer_list<T>& ref) : ocr::Matrix<T>(1,ref.size()){
+ocr::Vector<T>::Vector(const std::initializer_list<T>& ref) : ocr::Matrix<T>(1,ref.size()){
     this->size = ref.size();
-    this->data = make_shared<vector<vector<T>>>(1, vector<T>{});
+    this->data = std::make_shared<std::vector<std::vector<T>>>(1, std::vector<T>{});
     for (const T& val : ref){
         (*(this->data))[0].push_back(val);
     }
@@ -50,11 +48,11 @@ ocr::Vector<T>::Vector(const initializer_list<T>& ref) : ocr::Matrix<T>(1,ref.si
 template <typename T>
 ocr::Vector<T>::Vector(const Matrix<T>& matrix) : ocr::Matrix<T>(matrix.getRows(), matrix.getColumns()) {
     if (matrix.getRows() != 1 && matrix.getColumns() != 1) {
-        string error = "Unable to convert to vector of matrix " + to_string(matrix.getRows()) + " x " + to_string(matrix.getColumns()) + ". At least one dimension needs to be equal to 1.";
-        throw logic_error(error);
+        std::string error = "Unable to convert to vector of matrix " + std::to_string(matrix.getRows()) + " x " + std::to_string(matrix.getColumns()) + ". At least one dimension needs to be equal to 1.";
+        throw std::logic_error(error);
     }
     this->size = matrix.getRows() * matrix.getColumns();
-    this->data = make_shared<vector<vector<T>>>(matrix.getData());
+    this->data = std::make_shared<std::vector<std::vector<T>>>(matrix.getData());
 }
 
 template <typename T>
@@ -65,7 +63,7 @@ size_t ocr::Vector<T>::getSize() const {
 template <typename T>
 T& ocr::Vector<T>::operator[](int idx) {
     if ((ocr::Matrix<T>::getRows() == 1 && (idx < 0 || idx >= ocr::Matrix<T>::getColumns())) || (ocr::Matrix<T>::getColumns() == 1 && (idx < 0 || idx >= ocr::Matrix<T>::getRows()))) {
-        throw out_of_range("index " + to_string(idx) + " is out of range of size " + to_string(size));
+        throw std::out_of_range("index " + std::to_string(idx) + " is out of range of size " + std::to_string(size));
     }
     if (ocr::Matrix<T>::getRows() == 1) {
         return (*(this->data))[0][idx];
@@ -77,7 +75,7 @@ T& ocr::Vector<T>::operator[](int idx) {
 template <typename T>
 T ocr::Vector<T>::operator[](int idx) const {
     if ((ocr::Matrix<T>::getRows() == 1 && (idx < 0 || idx >= ocr::Matrix<T>::getColumns())) || (ocr::Matrix<T>::getColumns() == 1 && (idx < 0 || idx >= ocr::Matrix<T>::getRows()))) {
-        throw out_of_range("index " + to_string(idx) + " is out of range of size " + to_string(size));
+        throw std::out_of_range("index " + std::to_string(idx) + " is out of range of size " + std::to_string(size));
     }
     if (ocr::Matrix<T>::getRows() == 1) {
         return (*(this->data))[0][idx];
@@ -87,10 +85,10 @@ T ocr::Vector<T>::operator[](int idx) const {
 }
 
 template <typename T>
-void ocr::Vector<T>::fill(const vector<T>& vctr){
+void ocr::Vector<T>::fill(const std::vector<T>& vctr){
     if (vctr.size() != size){
-        string error = "Error: expected " + to_string(size) + " elements but received " + to_string(vctr.size()) + " instead.";
-        throw logic_error(error);
+        std::string error = "Error: expected " + std::to_string(size) + " elements but received " + std::to_string(vctr.size()) + " instead.";
+        throw std::logic_error(error);
     }   
     
     for (int idx = 0; idx < size; idx++) {
