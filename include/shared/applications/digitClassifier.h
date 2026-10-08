@@ -9,7 +9,7 @@ namespace ocr
 {
     enum class Digit
     {
-        Zero = 48,
+        Zero = 0,
         One,
         Two,
         Three,
@@ -24,10 +24,10 @@ namespace ocr
     typedef Dataset<Digit> DigitDataSet;
     typedef Batch<Digit> DigitBatch;
 
-    class DigitClassifier: public NueralNetwork<double>
+    class DigitClassifier: public NeuralNetwork<double>
     {
         // Implement
-    }
+    };
 }
 
 #endif
