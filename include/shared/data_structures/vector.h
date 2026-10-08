@@ -21,6 +21,10 @@ namespace ocr
         T operator[](int idx) const; // const non-ref defined
         void fill(const std::vector<T>& vctr); // defined
 
+        // change form
+        Vector<T> asRow();
+        Vector<T> asColumn();
+
         void transpose(); // defined
         static Vector<T> transpose(const Vector<T>&); // defined
         size_t getSize() const; // defined
@@ -128,5 +132,26 @@ ocr::Vector<T> ocr::Vector<T>::transpose(const Vector<T>& ref) {
     trspdVctr.transpose();
     return trspdVctr;
 }
+
+template <typename T>
+ocr::Vector<T> ocr::Vector<T>::asRow() {
+    if (this->rows == 1){
+        return *this;
+    }
+
+    ocr::Vector<T> rowVctr = ocr::Vector<T>::transpose(*this);
+    return rowVctr;
+}
+
+template <typename T>
+ocr::Vector<T> ocr::Vector<T>::asColumn() {
+    if (this->columns == 1){
+        return *this;
+    }
+
+    ocr::Vector<T> colVctr = ocr::Vector<T>::transpose(*this);
+    return colVctr;
+}
+
 
 #endif

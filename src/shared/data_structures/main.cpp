@@ -214,5 +214,15 @@ int main(void)
 
     v3.visualize();
 
-    return 0;
+    // test asRow and asColumn for vector
+
+    ocr::Vector<int> rowV = {1,2,3};
+    std::cout << rowV.getColumns() << " and " << rowV.getRows() << "." << std::endl;
+    std::cout << rowV.asColumn().getColumns() << " and " << rowV.asColumn().getRows() << "." << std::endl;
+    std::cout << rowV.getColumns() << " and " << rowV.getRows() << "." << std::endl;
+
+    ocr::Matrix<int> newMtrx = rowV.asColumn() * rowV;
+    newMtrx.visualize();
+
+    return 0;   
 }
