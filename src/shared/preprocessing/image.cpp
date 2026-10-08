@@ -56,7 +56,7 @@ ocr::Image::Image(std::string filename, size_t width, size_t height)
     default:
         throw std::invalid_argument("Image had an unusual number of channels.");
     }
-
+ throw std::invalid_argument(stbi_failure_reason());
     // now actually put away the data and store it properly.
     populateMap(data);
     stbi_image_free(data);
@@ -64,7 +64,6 @@ ocr::Image::Image(std::string filename, size_t width, size_t height)
 
 void ocr::Image::populateMap( const char* const data)
 {
-    std::cout<<"Populate map!\n";
 
     std::vector<Image::Channel> channels = getChannelsForFormat(format);
 
@@ -77,27 +76,29 @@ void ocr::Image::populateMap( const char* const data)
     {
         // fill them with empty husks before we populate them
         map.emplace(Image::Channel::Greyscale, std::make_unique<ocr::Matrix<uint8_t>>(width, height));
-        imageData.emplace_back();
+
     }
 
-    std::cout<<"Populate vector!\n";
     // populate this giant vector (on the stack? seems dubious). 
-    for(size_t x = 0; x<width; x++)
+    for(size_t i = 0; i<channels.size(); i++)
     {
-        //imageData.push_back()
-        for(size_t y = 0; y<height; y++)
+        imageData.emplace_back();
+        for(size_t x = 0; x<width; x++)
         {
-            for(size_t i = 0; i<channels.size(); i++)
+            imageData[i].emplace_back();
+            for(size_t y = 0; y<height; y++)
             {
+              
                 // pixels are stored by row, then column. Chanel data is contiguous.
                 size_t index = channels.size()*(y*width + x)+i;
                 uint8_t pixelData = static_cast<uint8_t>(data[index]);
                 imageData.at(i).at(x).push_back(pixelData);
+                
             }
         }
     }
 
-    std::cout<<"Wrap up!\n";
+  
     // pop the data in the matrices.
     int i = 0;
     for(Image::Channel ch : channels)
@@ -125,19 +126,24 @@ size_t ocr::Image::getHeight()
 
 void ocr::Image::writeToFile(std::string path)
 {
-    const int COMP = 0; // jpg compression? Maybe?
+    const int COMP = getChannelsForFormat(format).size(); // COMPONENTS!
     const int QUALITY = 0; // jpg quality. Dunno what the values mean.
                         // We could just do BMPs but if we're gonna have a ton of them maybe we could save some space with jpg?
 
     path +=".jpg";
     std::vector<Image::Channel> channels = getChannelsForFormat(format);
-    throw "NOT IMPLEMENTED";
 
     
     std::unique_ptr<std::vector<uint8_t>> rawFlatVector = asRawFlatVector(format);
     // This function can't be written without being able to extract data from the matricies.
 
     int returnValue = stbi_write_jpg(path.c_str(), width, height, COMP, rawFlatVector->data(), QUALITY);
+
+    if(returnValue == 0)
+    {
+        // failure!
+        throw std::invalid_argument("Couldn't write image file!");
+    }
 }
 
 std::unique_ptr<ocr::Vector<double>> ocr::Image::asFlatVector(Image::Format desiredFormat)

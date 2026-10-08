@@ -61,8 +61,9 @@ void ocr::Dataset<T>::parseImages(std::string imagePath)
     // Now, read the images from the file.
     for(int i = 0; i<length; i++)
     {
-       
-        std::cout<<"Reading image: "<<i<<"\n";
+        
+        if(i%10==0) std::cout<<"Reading image: "<<i<<" of "<<length<<"\n";
+        
         file.read(imageData, sizeof(uint8_t)*imageBytes);
 
         if(file.eof())

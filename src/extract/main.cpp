@@ -31,12 +31,16 @@ int main(void)
     {
         Dataset<Digit> data("data/emnist-digits-test-images-idx3-ubyte", "data/emnist-digits-test-labels-idx1-ubyte");
         std::cout<<"Read Dataset!\n";
-        for(int i = 0; i<10; i++)
+        for(int i = 0; i<100; i++)
         {
             Digit d =   data.getLabel(i);
             std::cout<<((int)d-(int)Digit::Zero)<<"\n";
+
             Image& image = data.getImage(i);
-            image.writeToFile("Image"+i);
+
+            std::ostringstream fname;
+            fname<<"output/image"<<i<<" ("<<((int)d-(int)Digit::Zero)<<")";
+            image.writeToFile(fname.str());
         }
     }
     catch(const std::exception& e)
