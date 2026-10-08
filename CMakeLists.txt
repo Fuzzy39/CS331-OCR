@@ -7,9 +7,6 @@ include_directories(PUBLIC "include/shared")
 
 
 add_library(ocr_lib STATIC 
-"src/shared/stb_image.cpp"
-# "src/shared/data_structures/matrix.cpp"
-# "src/shared/data_structures/vector.cpp"
 "src/shared/preprocessing/image.cpp"
 "include/shared/preprocessing/dataset.ipp"
 "src/shared/preprocessing/batch.cpp"

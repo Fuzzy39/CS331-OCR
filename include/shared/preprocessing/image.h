@@ -8,6 +8,7 @@
 #include <optional>
 #include <memory>
 #include "data_structures/matrix.h"
+#include "data_structures/vector.h"
 
 namespace ocr
 {
@@ -46,7 +47,7 @@ namespace ocr
         /// @brief Create an image with the specified format from the given data. It is assumed all channels are 8 bits.
         /// Each pixel's data is contiguous.
         /// Data is by row, then by column.
-        Image(size_t width, size_t height, Format format, const uint8_t* const data);
+        Image(size_t width, size_t height, Format format, const char* const data);
 
         /// @brief Reads image from a file, forcing it to fit a particular size.
         ///        If the image is too small, the data will be put in the top left corner and remaining pixels will be black.
@@ -54,8 +55,8 @@ namespace ocr
         Image(std::string filename, size_t width, size_t height);
     private:
         // assumes the pointer points to an appropriately sized hunk of memory.
-        void populateMap( const uint8_t* const data);
-
+        void populateMap( const char* const data);
+    public:
         Format getImageFormat();
         size_t getWidth();
         size_t getHeight();

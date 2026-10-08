@@ -6,6 +6,7 @@
 #include <bit>
 #include <memory>
 #include <sstream>
+#include <cmath>
 
 using namespace ocr;
 
@@ -36,14 +37,15 @@ void ocr::Dataset<T>::parseImages(std::string imagePath)
 
     // open the file for reading. Complain dramatically if something went wrong.
     std::ifstream file(imagePath.c_str(), std::ios::in | std::ios::binary);
-    file.exceptions(std::ifstream::failbit | std::ifstream::badbit );
-
+   
     if(!file.is_open() || file.fail())
     {
         std::ostringstream error;
         error<<"Dataset file at '"<<imagePath<<"' Could not be opened. Does the file exist?";
         throw std::invalid_argument(error.str());
     }
+    file.exceptions(std::ifstream::failbit | std::ifstream::badbit );
+
 
     // check that this file is actually supposed to be a label file.
     verifyMagicNumber(file, MNIST_IMAGE_MAGIC, imagePath);
@@ -54,13 +56,13 @@ void ocr::Dataset<T>::parseImages(std::string imagePath)
     uint32_t pixelCols = readIntFromFile(file, imagePath);
 
     size_t imageBytes = pixelRows*pixelCols;
-    uint8_t* imageData = new uint8_t[imageBytes];
+    char* imageData = new char[imageBytes];
 
     // Now, read the images from the file.
     for(int i = 0; i<length; i++)
     {
        
-
+        std::cout<<"Reading image: "<<i<<"\n";
         file.read(imageData, sizeof(uint8_t)*imageBytes);
 
         if(file.eof())
@@ -88,14 +90,14 @@ void ocr::Dataset<T>::parseLabels(std::string labelPath)
 
     // open the file for reading. Complain dramatically if something went wrong.
     std::ifstream file(labelPath.c_str(), std::ios::in | std::ios::binary);
-    file.exceptions(std::ifstream::failbit | std::ifstream::badbit );
-
+    
     if(!file.is_open() || file.fail())
     {
         std::ostringstream error;
         error<<"Label file at '"<<labelPath<<"' Could not be opened. Does the file exist?";
         throw std::invalid_argument(error.str());
     }
+    file.exceptions(std::ifstream::failbit | std::ifstream::badbit );
 
     // check that this file is actually supposed to be a label file.
     verifyMagicNumber(file, MNIST_LABEL_MAGIC, labelPath);
@@ -186,7 +188,7 @@ Image& ocr::Dataset<T>::getImage(size_t index)
     // We use .at instread of the overloaded [] operator
     // so that the vector class throws an exception if index
     // is out of bounds.
-    return images.at(index);
+    return *(images.at(index).get());
 }
 
 template <typename T>

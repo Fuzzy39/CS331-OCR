@@ -30,11 +30,13 @@ int main(void)
     try
     {
         Dataset<Digit> data("data/emnist-digits-test-images-idx3-ubyte", "data/emnist-digits-test-labels-idx1-ubyte");
-        
-        for(int i = 0; i<100; i++)
+        std::cout<<"Read Dataset!\n";
+        for(int i = 0; i<10; i++)
         {
             Digit d =   data.getLabel(i);
             std::cout<<((int)d-(int)Digit::Zero)<<"\n";
+            Image& image = data.getImage(i);
+            image.writeToFile("Image"+i);
         }
     }
     catch(const std::exception& e)
