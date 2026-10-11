@@ -4,6 +4,7 @@
 #include <vector>
 #include <initializer_list>
 #include <stdexcept>
+#include <string>
 
 #include "data_structures/matrix.h"
 
