@@ -9,28 +9,27 @@ namespace ocr
     template <typename T>
     class Layer 
     {
-    public:
-        Layer(int neuronCount, int inputCount);
-        
-        // bias vector
-        void initializeBiases();
-        Vector<T> getBiases();
-
-        // weight matrix
-        void initializeWeights();
-        Matrix<T> getWeights();
-
-        // computations
-        void computeOutput(const Vector<T>& inputs);
-        Vector<T> getOutputs();
-
     private:
         int neuronCount;
         int inputCount;
 
         Matrix<T> weights;
         Vector<T> biases;
-        Vector<T> outputs;
+
+    public:
+        Layer(int neuronCount, int inputCount);
+        void randomizeLayer();
+
+        // bias vector
+        Vector<T>& getBiases();
+
+        // weight matrix
+        Matrix<T>& getWeights();
+
+        // computations
+        Vector<T> evaluate(const Vector<T>& inputs);
+
+
     };
 }
 #endif

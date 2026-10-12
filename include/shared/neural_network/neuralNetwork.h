@@ -10,12 +10,22 @@ namespace ocr
     template <typename T>
     class NeuralNetwork 
     {
-    public:
-        NeuralNetwork(int inputCount, int outputCount, std::vector<int> hiddenLayerSizes);
-        void initializeNetwork();
-
     private:
         std::vector<Layer<T>> layers;
+    public:
+        NeuralNetwork(int inputCount, int outputCount, std::vector<int> hiddenLayerSizes);
+
+        NueralNetwork(std::string pathname);
+
+        void writeToFile(std::string pathname);
+
+        //create network with random weights
+        void randomizeNetwork();
+
+        
+        ocr::Vector<double> evaluate(ocr::Vector<double> input);
+
+        
     };
 }
 

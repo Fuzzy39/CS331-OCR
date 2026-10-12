@@ -1,0 +1,14 @@
+Milestone 1:
+[X] Dataset         - Mason 
+[X] Image           - Mason
+[X] Matrix          - Max
+[X] Vector          - Max
+[ ] Batch           - Alden
+[ ] Main of Extract - Alden
+
+Milestone 2:
+[ ] NeuralNetwork   - Mason
+[ ] Layer           - Mason
+[ ] ffTrain (Math!) - Max
+[ ] DigitClassifier - Alden
+[ ] Main functions  - Alden

@@ -6,21 +6,29 @@
 #include "shared/neural_network/neuralNetwork.h"
 
 template <typename T>
-class FFTrain {
-public:
-    FFTrain(NeuralNetwork<T>& network, std::vector<std::vector<Batch<T>>>& batches, double learningRate, int epochs);
-    void train();
+class FFTrain
+{
 private:
     NeuralNetwork<T>& network;
-    std::vector<std::vector<Batch<T>>>& batches;
-    double learningRate;
-    int epochs;
+    ocr::Dataset<double>& trainingData;
+    ocr::Dataset<double>& testingData;
 
+    double learningRate;
+    size_t batchSize;
+ 
+
+public:
+    FFTrain(NeuralNetwork<T>& network, ocr::Dataset<double>& trainingData, ocr::Dataset<double>& testingData, double learningRate, size_t batchSize);
+
+    //returns test data loss after training for epochs epochs.
+    ocr::Vector<double> train(int epochs);
+    NeuralNetwork<T>& getNetwork();
+
+private:
     // helper methods
-    double lostFunction(const std::vector<T>& output, const std::vector<T>& target);
+    double lossFunction(const std::vector<T>& output, const std::vector<T>& target);
     void backpropagate(const std::vector<T>& input, const std::vector<T>& target);
     void updateWeightsAndBiases();
-    void feedForward(const std::vector<T>& input);
 };
 
 
