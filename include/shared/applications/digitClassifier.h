@@ -27,6 +27,10 @@ namespace ocr
     class DigitClassifier: public NeuralNetwork<double>
     {
         // Implement
+        DigitClassifier(std::vector<int> hiddenLayerSizes);
+
+        Digit evaluate(ocr::Vector<double> input);
+
     };
 }
 
