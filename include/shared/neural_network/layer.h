@@ -17,7 +17,7 @@ namespace ocr
         Vector<T> biases;
 
     public:
-        Layer(int neuronCount, int inputCount);
+        Layer(size_t neuronCount, size_t inputCount);
         void randomizeLayer();
 
         // bias vector
