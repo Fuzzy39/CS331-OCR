@@ -17,7 +17,7 @@ namespace ocr
         Vector<T> biases;
 
     public:
-        Layer(size_t inputCount, size_t neuronCount,);
+        Layer(size_t inputCount, size_t neuronCount);
         // for file io
         Layer(std::istream& input); // This may need additional parameters. Not 100% sure at present.
         void serialize(std::ostream& output);
@@ -29,11 +29,12 @@ namespace ocr
         size_t getNeuronCount();
         size_t getInputCount();
 
+
         // bias vector
-        Vector<T>& getBiases();
+        T& getBias(size_t neuron); 
 
         // weight matrix
-        Matrix<T>& getWeights();
+        T& getWeight(size_t inputNeuron, size_t neuron);
 
         // computations
         Vector<T> evaluate(const Vector<T>& inputs);
@@ -48,7 +49,8 @@ namespace ocr
         //      biases is a vector of size N
         //      and sigmoid is a function performed on each value in the output vector that serves to clamp the value between -1 and 1.
 
-        
+    private:
+        static inline double sigmoid(double x);
     };
 }
 #endif

@@ -1,5 +1,5 @@
 #pragma once
-#include "neuralNetwork.h"
+#include "neural_network/neuralNetwork.h"
 
 template <typename T>
 ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std::vector<size_t> hiddenLayerSizes): layers()
