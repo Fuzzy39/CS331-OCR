@@ -82,6 +82,8 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(const ocr::Vector<T>& inputs)
     {
         output[i] = sigmoid(output[i]);
     }
+
+    return output;
 }
 
 template <typename T>
