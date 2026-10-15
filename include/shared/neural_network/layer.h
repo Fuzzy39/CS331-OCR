@@ -17,7 +17,7 @@ namespace ocr
         Vector<T> biases;
 
     public:
-        Layer(size_t neuronCount, size_t inputCount);
+        Layer(size_t inputCount, size_t neuronCount,);
         // for file io
         Layer(std::istream& input); // This may need additional parameters. Not 100% sure at present.
         void serialize(std::ostream& output);
