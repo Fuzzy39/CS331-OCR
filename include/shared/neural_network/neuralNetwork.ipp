@@ -40,6 +40,17 @@ void ocr::NeuralNetwork<T>::randomizeNetwork()
 }
 
 template <typename T>
+void ocr::NeuralNetwork<T>::print()
+{
+    int i = 0;
+    for(Layer<T> layer : layers)
+    {
+        std::cout<<"layer "<<i<<" ("<<layer.getNeuronCount()<<" neurons):\n";
+        layer.print();
+    }
+}
+
+template <typename T>
 ocr::Vector<T> ocr::NeuralNetwork<T>::evaluate(ocr::Vector<T> input)
 {
     // pass the vector through each layer until we get the output.

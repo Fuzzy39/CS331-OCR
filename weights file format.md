@@ -11,5 +11,7 @@ The header is followed by the described number of layers.
 
 size_t    8 bytes    (R) Number of output neurons
 then,  R*C doubles describing the weights, indexed as [row][column].
+each column represents a single neuron in this layer.
+
 Following that, R doubles for the biases of the layer.
 C for the next layer is R for the previous layer.

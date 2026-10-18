@@ -19,11 +19,12 @@ namespace ocr
     public:
         Layer(size_t inputCount, size_t neuronCount);
         // for file io
-        Layer(std::istream& input); // This may need additional parameters. Not 100% sure at present.
+        Layer(std::istream& input, size_t previousLayerNeurons);
         void serialize(std::ostream& output);
 
         void randomizeLayer();
 
+        void print();
    
         // how big are we?
         size_t getNeuronCount();

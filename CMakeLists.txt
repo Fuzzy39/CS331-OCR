@@ -7,11 +7,10 @@ include_directories(PUBLIC "include/shared")
 
 
 add_library(ocr_lib STATIC 
+"src/shared/FileUtil.cpp"
 "src/shared/preprocessing/image.cpp"
 "include/shared/preprocessing/dataset.ipp"
 "src/shared/preprocessing/batch.cpp"
-"src/shared/neural_network/layer.cpp"
-"src/shared/neural_network/neuralNetwork.cpp"
 )
 
 # Extract

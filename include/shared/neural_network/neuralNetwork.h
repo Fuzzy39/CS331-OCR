@@ -24,6 +24,10 @@ namespace ocr
         //initialize network with random weights
         void randomizeNetwork();
 
+        // Print the network.
+        void print();
+
+
         // evauluate the neural net for a given input.
         ocr::Vector<T> evaluate(ocr::Vector<T> input);
 

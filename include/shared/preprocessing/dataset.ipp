@@ -1,6 +1,7 @@
 #pragma once
 #include "preprocessing/dataset.h"
 #include "preprocessing/batch.h"
+#include "FileUtil.h"
 #include <fstream>
 #include <iomanip>
 #include <bit>
@@ -36,24 +37,16 @@ void ocr::Dataset<T>::parseImages(std::string imagePath)
     const uint32_t MNIST_IMAGE_MAGIC = 2051; // magic number for mnist image file.  
 
     // open the file for reading. Complain dramatically if something went wrong.
-    std::ifstream file(imagePath.c_str(), std::ios::in | std::ios::binary);
-   
-    if(!file.is_open() || file.fail())
-    {
-        std::ostringstream error;
-        error<<"Dataset file at '"<<imagePath<<"' Could not be opened. Does the file exist?";
-        throw std::invalid_argument(error.str());
-    }
-    file.exceptions(std::ifstream::failbit | std::ifstream::badbit );
+    std::ifstream file = FileUtil::openFileForRead(imagePath);
 
 
     // check that this file is actually supposed to be a label file.
-    verifyMagicNumber(file, MNIST_IMAGE_MAGIC, imagePath);
+    FileUtil::verifyMagicNumber(file, MNIST_IMAGE_MAGIC, labelPath);
 
     // Read the remainder of the header:
-    uint32_t length    = readIntFromFile(file, imagePath);
-    uint32_t pixelRows = readIntFromFile(file, imagePath);
-    uint32_t pixelCols = readIntFromFile(file, imagePath);
+    uint32_t length    = FileUtil::readInt<uint32_t>(file);
+    uint32_t pixelRows = FileUtil::readInt<uint32_t>(file);
+    uint32_t pixelCols = FileUtil::readInt<uint32_t>(file);
 
     size_t imageBytes = pixelRows*pixelCols;
     char* imageData = new char[imageBytes];
@@ -89,22 +82,13 @@ void ocr::Dataset<T>::parseLabels(std::string labelPath)
     const uint32_t MNIST_LABEL_MAGIC = 2049; // magic number for mnist label file.
     const size_t BUFFER_SIZE = 100;    
 
-    // open the file for reading. Complain dramatically if something went wrong.
-    std::ifstream file(labelPath.c_str(), std::ios::in | std::ios::binary);
-    
-    if(!file.is_open() || file.fail())
-    {
-        std::ostringstream error;
-        error<<"Label file at '"<<labelPath<<"' Could not be opened. Does the file exist?";
-        throw std::invalid_argument(error.str());
-    }
-    file.exceptions(std::ifstream::failbit | std::ifstream::badbit );
+    std::ifstream file = FileUtil::openFileForRead(labelPath);
 
     // check that this file is actually supposed to be a label file.
-    verifyMagicNumber(file, MNIST_LABEL_MAGIC, labelPath);
+    FileUtil::verifyMagicNumber(file, MNIST_LABEL_MAGIC, labelPath);
 
     // Read the number of labels expected:
-    uint32_t length = readIntFromFile(file, labelPath);
+    uint32_t length = FileUtil::readInt<uint32_t>(file);
     
     // read through all of the labels the file claims will be there and 
     while(length > 0)
@@ -134,46 +118,7 @@ void ocr::Dataset<T>::parseLabels(std::string labelPath)
 }
 
 
-template <typename T>
-void ocr::Dataset<T>::verifyMagicNumber(std::ifstream& file, uint32_t expected, std::string filePath)
-{
-    // Many types of files contain magic numbers in their headers as a simple check for programs so that they know the file actually is supposed to be of the format they are parsing it as.
-    // the dataset files have magic numbers, so we ought to check them.
-    uint32_t magic_number = readIntFromFile(file, filePath);
-    if(magic_number != expected)
-    {
-        std::ostringstream error;     
-        error<<"Got wrong magic number for file at '"<<filePath<<
-            "' (Got: 0x"<< std::hex << std::setw(8) << std::setfill('0')<<magic_number<<
-            ", Expected: 0x"<<expected<<"). The file is malformed or of the wrong format.";
-        throw std::invalid_argument(error.str());
-    }
-}
 
-
-template <typename T>
-uint32_t ocr::Dataset<T>::readIntFromFile(std::ifstream& file, std::string filePath)
-{
-    
-    uint32_t toReturn = 0;
-    file.read((char*)&toReturn, sizeof(uint32_t));
-
-    if(file.eof())
-    {
-        file.close();
-        std::ostringstream error;
-        error<<"Unexpected end of file while reading from '"<<filePath<<"'.";
-        throw std::invalid_argument(error.str());
-    }
-
-    if(std::endian::native == std::endian::little)
-    {
-        // swap the bits around if we're on x86 (I mean, Max has a mac I think so this could run on arm, right?)
-        return std::byteswap<uint32_t>(toReturn);
-    }
-
-    return toReturn;
-}
 
 
 template <typename T>
