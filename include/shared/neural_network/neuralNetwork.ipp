@@ -1,5 +1,6 @@
 #pragma once
 #include "neural_network/neuralNetwork.h"
+#include "FileUtil.h"
 
 template <typename T>
 ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std::vector<size_t> hiddenLayerSizes): layers()
@@ -18,15 +19,43 @@ ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std:
 }
 
 template <typename T>
-ocr::NeuralNetwork<T>::NeuralNetwork(std::string pathname)
+ocr::NeuralNetwork<T>::NeuralNetwork(std::string pathname) : layers()
 {
-    throw std::logic_error("Not implemented.");
+    // read the file and check that it's a weights file.
+    std::ifstream file = FileUtil::openFileForRead(pathname);
+    FileUtil::verifyMagicNumber(file, FileUtil::OCR_WEIGHTS_MAGIC, pathname);
+
+    // read the remainder of the header
+    size_t layerCount = FileUtil::readInt<size_t>(file);
+    size_t previousLayerNeurons = FileUtil::readInt<size_t>(file);
+
+    // then read each layer.
+    for(int i = 0; i<layerCount; i++)
+    {
+        layers.emplace_back(Layer(file, previousLayerNeurons));
+        previousLayerNeurons = layers[i].getNeuronCount();
+    }
+
+      // I don't think you need to call close, since ifstream should clean up in its destructor. but it seems polite? Sure.
+    file.close();
 }
 
 template <typename T>
 void ocr::NeuralNetwork<T>::writeToFile(std::string pathname)
 {
-    throw std::logic_error("Not implemented.");
+    std::ofstream file = FileUtil::openFileForWrite(pathname);
+
+    // write the header: the magic number, then the number of layers, followed by the size of the input layer.
+    FileUtil::writeInt<uint32_t>(file, FileUtil::OCR_WEIGHTS_MAGIC);
+    FileUtil::writeInt<size_t>(file, layers.size());
+    FileUtil::writeInt<size_t>(file, getInputSize());
+
+    // then just write each layer.
+    for(Layer<T> layer : layers)
+    {
+        layer.serialize(file);
+    }
+    file.close(); // pretty sure this is uneeded, but again, feels polite.
 }
 
 //create network with random weights

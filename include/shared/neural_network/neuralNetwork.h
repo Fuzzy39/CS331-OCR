@@ -19,6 +19,7 @@ namespace ocr
         // File I/O
         NeuralNetwork(std::string pathname);
 
+        // do not include file extension in pathname. It's provided for you.
         void writeToFile(std::string pathname);
 
         //initialize network with random weights

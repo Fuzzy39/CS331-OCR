@@ -34,14 +34,12 @@ ocr::Dataset<T>::Dataset(std::string imagePath, std::string labelPath): images()
 template <typename T>
 void ocr::Dataset<T>::parseImages(std::string imagePath)
 {
-    const uint32_t MNIST_IMAGE_MAGIC = 2051; // magic number for mnist image file.  
-
+    
     // open the file for reading. Complain dramatically if something went wrong.
     std::ifstream file = FileUtil::openFileForRead(imagePath);
 
-
     // check that this file is actually supposed to be a label file.
-    FileUtil::verifyMagicNumber(file, MNIST_IMAGE_MAGIC, imagePath);
+    FileUtil::verifyMagicNumber(file, FileUtil::MNIST_IMAGE_MAGIC, imagePath);
 
     // Read the remainder of the header:
     uint32_t length    = FileUtil::readInt<uint32_t>(file);
@@ -79,13 +77,12 @@ void ocr::Dataset<T>::parseImages(std::string imagePath)
 template <typename T>
 void ocr::Dataset<T>::parseLabels(std::string labelPath)
 {
-    const uint32_t MNIST_LABEL_MAGIC = 2049; // magic number for mnist label file.
     const size_t BUFFER_SIZE = 100;    
 
     std::ifstream file = FileUtil::openFileForRead(labelPath);
 
     // check that this file is actually supposed to be a label file.
-    FileUtil::verifyMagicNumber(file, MNIST_LABEL_MAGIC, labelPath);
+    FileUtil::verifyMagicNumber(file, FileUtil::MNIST_LABEL_MAGIC, labelPath);
 
     // Read the number of labels expected:
     uint32_t length = FileUtil::readInt<uint32_t>(file);

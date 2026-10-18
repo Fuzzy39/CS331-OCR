@@ -1,6 +1,10 @@
 #include "FileUtil.h"
 #include <iomanip>
 
+const uint32_t FileUtil::MNIST_IMAGE_MAGIC = 2051; // magic number for mnist image file.  
+const uint32_t FileUtil::MNIST_LABEL_MAGIC = 2049; // magic number for mnist label file.
+const uint32_t FileUtil::OCR_WEIGHTS_MAGIC = 0x0C40; // magic number for our weights file.
+
 std::ifstream FileUtil::openFileForRead(std::string path)
 {
     // open the file for reading. Complain dramatically if something went wrong.
@@ -19,15 +23,24 @@ std::ifstream FileUtil::openFileForRead(std::string path)
 
 std::ofstream FileUtil::openFileForWrite(std::string path)
 {
-    throw std::logic_error("Not implemented.");
-}
+    // trunc should, I think, delete the contents of the file if there was anything here before.
+    // The file should also be created if it doesn't exist.
+    std::ofstream toReturn(path.c_str(), std::ios::out | std::ios::binary | std::ios::trunc);
+    if(!toReturn.is_open() || toReturn.fail())
+    {
+        std::ostringstream error;
+        error<<"File at '"<<path<<"' Could not be opened. Does the path to the file exist?";
+        throw std::invalid_argument(error.str());
+    }
+    toReturn.exceptions(std::ifstream::failbit | std::ifstream::badbit );
 
+    return toReturn;
+
+}
 
 
 void FileUtil::verifyMagicNumber(std::ifstream& file, uint32_t expected, std::string filePath)
 {
-    // Many types of files contain magic numbers in their headers as a simple check for programs so that they know the file actually is supposed to be of the format they are parsing it as.
-    // the dataset files have magic numbers, so we ought to check them.
     uint32_t magic_number = FileUtil::readInt<uint32_t>(file);
     if(magic_number != expected)
     {
