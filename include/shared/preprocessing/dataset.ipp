@@ -41,7 +41,7 @@ void ocr::Dataset<T>::parseImages(std::string imagePath)
 
 
     // check that this file is actually supposed to be a label file.
-    FileUtil::verifyMagicNumber(file, MNIST_IMAGE_MAGIC, labelPath);
+    FileUtil::verifyMagicNumber(file, MNIST_IMAGE_MAGIC, imagePath);
 
     // Read the remainder of the header:
     uint32_t length    = FileUtil::readInt<uint32_t>(file);
