@@ -52,4 +52,5 @@ namespace ocr
     };
 }
 
+#include "neuralNetwork.ipp"
 #endif

@@ -10,7 +10,8 @@ add_library(ocr_lib STATIC
 "src/shared/FileUtil.cpp"
 "src/shared/preprocessing/image.cpp"
 "include/shared/preprocessing/dataset.ipp"
-"src/shared/preprocessing/batch.cpp"
+"include/shared/neural_network/neuralNetwork.ipp"
+"include/shared/neural_network/layer.ipp"
 )
 
 # Extract
@@ -27,7 +28,10 @@ add_executable(classify "src/classify/main.cpp")
 target_include_directories(classify PUBLIC "include/classify")
 target_link_libraries(classify ocr_lib)
 
-# Shared (Testing)
-add_executable(shared "src/shared/data_structures/main.cpp")
-target_include_directories(shared PUBLIC "include/shared")
-target_link_libraries(shared ocr_lib)
+# Test mains. Each file in the testing directory is a standalone program.
+# Change the source in add_executable to change what is being tested
+if(true)
+    add_executable(test "src/testing/NeuralNetwork.cpp")
+    target_include_directories(test PUBLIC "include/shared")
+    target_link_libraries(test ocr_lib)
+endif()

@@ -19,8 +19,8 @@ namespace ocr
     public:
         Layer(size_t inputCount, size_t neuronCount);
         // for file io
-        Layer(std::istream& input, size_t previousLayerNeurons);
-        void serialize(std::ostream& output);
+        Layer(std::ifstream& input, size_t previousLayerNeurons);
+        void serialize(std::ofstream& output);
 
         void randomizeLayer();
 
@@ -54,4 +54,6 @@ namespace ocr
         static inline double sigmoid(double x);
     };
 }
+
+#include "layer.ipp"
 #endif

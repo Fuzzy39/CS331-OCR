@@ -10,16 +10,10 @@ ocr::Layer<T>::Layer(size_t inputCount, size_t neuronCount)
 }
 
 template <typename T>
-ocr::Layer<T>::Layer(std::istream& input, size_t previousLayerNeurons)
+ocr::Layer<T>::Layer(std::ifstream& input, size_t previousLayerNeurons)
 {
     // read our size, first.
-    uint64_t neuronCount = 0;
-    file.read((char*)&toReturn, sizeof(uint64_t));
-
-    if(std::endian::native == std::endian::little)
-    {
-        neuronCount = std::byteswap<uint32_t>(toReturn);
-    }
+    uint64_t neuronCount = FileUtil::readInt<uint64_t>(input);
 
     // initialize our members.
     weights(previousLayerNeurons, neuronCount);
@@ -38,7 +32,7 @@ ocr::Layer<T>::Layer(std::istream& input, size_t previousLayerNeurons)
             // Also, I don't know how endianness works for doubles and floats.
             T weight = 0;
             // should probably do a static_cast or something here.
-            file.read((char*)&weight, sizeof(T));
+            input.read((char*)&weight, sizeof(T));
             weights[row][col] = weight;
         }
     }
@@ -48,23 +42,17 @@ ocr::Layer<T>::Layer(std::istream& input, size_t previousLayerNeurons)
     {
         T bias = 0;
         // should probably do a static_cast or something here.
-        file.read((char*)&bias, sizeof(T));
+        input.read((char*)&bias, sizeof(T));
         biases[i] = bias;
     }    
 
 } 
 
 template <typename T>
-void ocr::Layer<T>::serialize(std::ostream& output)
+void ocr::Layer<T>::serialize(std::ofstream& output)
 {
     // write the neuron size as described in weights file format.md
-    uint64_t neuronCount = getNeuronCount();
-    if(std::endian::native == std::endian::little) // stored as big endian.
-    {
-        neuronCount = std::byteswap<uint32_t>(toReturn);
-    }
-    output.write(getNeuronCount(), sizeof(size_t));
-
+    FileUtil::writeInt<uint64_t>(output, getNeuronCount());
 
     // then, write the weights matrix to file.
     for(int row = 0; row<weights.rows(); row++)
