@@ -17,6 +17,7 @@ namespace ocr
         NeuralNetwork(size_t inputCount, size_t outputCount, std::vector<size_t> hiddenLayerSizes);
 
         // File I/O
+        // includes file extension.
         NeuralNetwork(std::string pathname);
 
         // do not include file extension in pathname. It's provided for you.

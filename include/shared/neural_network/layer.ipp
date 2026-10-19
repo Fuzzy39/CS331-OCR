@@ -1,6 +1,8 @@
 #pragma once
 
 #include "neural_network/layer.h"
+#include "FileUtil.h"
+#include <random>
 
 template <typename T>
 ocr::Layer<T>::Layer(size_t inputCount, size_t neuronCount)
@@ -10,30 +12,24 @@ ocr::Layer<T>::Layer(size_t inputCount, size_t neuronCount)
 }
 
 template <typename T>
-ocr::Layer<T>::Layer(std::ifstream& input, size_t previousLayerNeurons)
+ocr::Layer<T>::Layer(std::ifstream& input, size_t previousLayerNeurons, size_t layerSize) 
+    : weights(layerSize, previousLayerNeurons), biases(layerSize)
 {
-    // read our size, first.
-    uint64_t neuronCount = FileUtil::readInt<uint64_t>(input);
-
-    // initialize our members.
-    weights(previousLayerNeurons, neuronCount);
-    biases(neuronCount);
-    
     // read in weights from file.
 
     // It occurs to me you could probably do something mildly cursed like read the entirety of the weights at once,
     // then shove them into a std::vector and then construct the matrix that way.
     // I don't think there's a performance reason to prefer one over the other so I'll just keep this how I have it.
-    for(int row = 0; row<weights.rows(); row++)
+    for(int row = 0; row<weights.getRows(); row++)
     {
-        for(int col = 0; col<weights.columns(); col++)
+        for(int col = 0; col<weights.getColumns(); col++)
         {
             // We can't really make endianness assumptions since we don't know the type.
             // Also, I don't know how endianness works for doubles and floats.
             T weight = 0;
             // should probably do a static_cast or something here.
             input.read((char*)&weight, sizeof(T));
-            weights[row][col] = weight;
+            weights.set(row, col, weight);
         }
     }
 
@@ -55,18 +51,18 @@ void ocr::Layer<T>::serialize(std::ofstream& output)
     FileUtil::writeInt<uint64_t>(output, getNeuronCount());
 
     // then, write the weights matrix to file.
-    for(int row = 0; row<weights.rows(); row++)
+    for(int row = 0; row<weights.getRows(); row++)
     {
-        for(int col = 0; col<weights.columns(); col++)
+        for(int col = 0; col<weights.getColumns(); col++)
         {
-            output.write(weights[row][col], sizeof(T));
+            output.write(reinterpret_cast<char*>(&weights[row][col]), sizeof(T));
         }
     }
 
     // finally, write the biases to the file.
     for(int i = 0; i<getNeuronCount(); i++)
     {
-        output.write(biases[i], sizeof(T));
+        output.write(reinterpret_cast<char*>(&biases[i]), sizeof(T));
     }
 
 }
@@ -74,7 +70,7 @@ void ocr::Layer<T>::serialize(std::ofstream& output)
 template <typename T>
 void ocr::Layer<T>::print()
 {
-   std::cout<<"weights (Each column represents a neuron in this layer):\n";
+   std::cout<<"weights (Each row represents a neuron in this layer):\n";
    weights.visualize();
    std::cout<<"Biases:\n";
    biases.visualize();  
@@ -85,20 +81,25 @@ template <typename T>
 void ocr::Layer<T>::randomizeLayer()
 {
     // this is apparently how random numbers in C++ work. If you're not doing it the C way, at least.
-    std::mt19937 rng(std::random_device()); // messerine twister, I guess the form of rng. I think it has a period of 2^19937-1 or something?
-    std::std::uniform_real_distribution<> dist(-1, 1); // initial values for weights and biases will be between -1 and 1.
+    std::random_device dev;
+    std::mt19937 rng(dev()); // messerine twister, I guess the form of rng. I think it has a period of 2^19937-1 or something?
+    std::uniform_real_distribution<> dist(-1, 1); // initial values for weights and biases will be between -1 and 1.
 
     // randomize weights
     for(int i = 0; i<weights.getRows(); i++)
     {
         for(int j = 0; j<weights.getColumns(); j++)
         {
-            weights[i][j] = dist(rng);
+            weights.set(i, j, dist(rng));
         }
     }
     
     // and biases.
-    for(T& bias : biases) bias = dist(rng);
+    for(size_t i = 0; i<biases.getSize(); i++)
+    {
+        biases[i]=dist(rng);
+    }
+
 }
 
 template <typename T>
@@ -114,31 +115,49 @@ size_t ocr::Layer<T>::getInputCount()
 }
 
 template <typename T>
-T& ocr::Layer<T>::getBias(size_t neuron)
+T ocr::Layer<T>::getBias(size_t neuron)
 {
-    return biases.at(neuron);
+    return biases[neuron];
 }
 
 template <typename T>
-T& ocr::Layer<T>::getWeight(size_t inputNeuron, size_t neuron)
+void ocr::Layer<T>::setBias(size_t neuron, T bias)
 {
-    return weights.at(neruon).at(inputNeuron);
+    biases[neuron] = bias;
+} 
+
+
+template <typename T>
+T ocr::Layer<T>::getWeight(size_t inputNeuron, size_t neuron)
+{
+    return weights.getData().at(neuron).at(inputNeuron);
 }
 
 template <typename T>
-ocr::Vector<T> ocr::Layer<T>::evaluate(const ocr::Vector<T>& inputs)
+void ocr::Layer<T>::setWeight(size_t inputNeuron, size_t neuron, T weight )
 {
-    if(inputs.size()!=getInputCount())
+   weights.set(neuron, inputNeuron, weight);
+}
+
+
+
+template <typename T>
+ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs)
+{
+    if(inputs.getSize()!=getInputCount())
     {
-        throw std::invalid_argument("Wrong size for input vector. Got size "+inputs.size()+", but expected "+getInputCount()+".");
+        std::ostringstream error;
+        error << "Wrong size for input vector. Got size " <<inputs.getSize()
+            <<", but expected "+getInputCount() <<".";
+        throw std::invalid_argument(error.str());
     }
 
     // output = sigmoid( Weights * input + biases)
 
-    // with any luck, this'll just work.
-    ocr::Vector<T> output = (weights * inputs) + biases;
+    // with any luck, this'll just work. (Nope. I had to fix some things.)
+    ocr::Vector<T> output = (weights * inputs.asColumn()) + biases.asColumn();
 
-    for(int i = 0; i< getInputCount(); i++)
+    for(int i = 0; i< getNeuronCount(); i++)
     {
         output[i] = sigmoid(output[i]);
     }

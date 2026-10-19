@@ -7,7 +7,7 @@ include_directories(PUBLIC "include/shared")
 
 
 add_library(ocr_lib STATIC 
-"src/shared/FileUtil.cpp"
+"include/shared/FileUtil.ipp"
 "src/shared/preprocessing/image.cpp"
 "include/shared/preprocessing/dataset.ipp"
 "include/shared/neural_network/neuralNetwork.ipp"

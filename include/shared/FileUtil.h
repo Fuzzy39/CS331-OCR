@@ -24,3 +24,5 @@ namespace FileUtil
     template <typename intType> intType readInt(std::ifstream& file);
     template <typename intType> void writeInt(std::ofstream& file, intType toWrite);
 }
+
+#include "FileUtil.ipp"

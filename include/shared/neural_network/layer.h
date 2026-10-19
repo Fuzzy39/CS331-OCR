@@ -19,7 +19,7 @@ namespace ocr
     public:
         Layer(size_t inputCount, size_t neuronCount);
         // for file io
-        Layer(std::ifstream& input, size_t previousLayerNeurons);
+        Layer(std::ifstream& input, size_t previousLayerSize, size_t layerSize);
         void serialize(std::ofstream& output);
 
         void randomizeLayer();
@@ -32,13 +32,17 @@ namespace ocr
 
 
         // bias vector
-        T& getBias(size_t neuron); 
+        T getBias(size_t neuron);
+        void setBias(size_t neuron, T bias); 
 
         // weight matrix
-        T& getWeight(size_t inputNeuron, size_t neuron);
+        T getWeight(size_t inputNeuron, size_t neuron);
+        void setWeight(size_t inputNeuron, size_t neuron, T bias);
+
+    
 
         // computations
-        Vector<T> evaluate(const Vector<T>& inputs);
+        Vector<T> evaluate(Vector<T>& inputs);
 
         // How is a layer evaluated?
         // The following calulation is performed:

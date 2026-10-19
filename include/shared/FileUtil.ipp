@@ -1,3 +1,4 @@
+#pragma once
 #include "FileUtil.h"
 #include <iomanip>
 
@@ -82,5 +83,5 @@ void FileUtil::writeInt(std::ofstream& file, intType toWrite)
     }
     
     uint32_t toReturn = 0;
-    file.write( &toWrite, sizeof(intType));
+    file.write( reinterpret_cast<char*>(&toWrite), sizeof(intType));
 }

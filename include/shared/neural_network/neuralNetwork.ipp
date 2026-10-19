@@ -1,6 +1,7 @@
 #pragma once
 #include "neural_network/neuralNetwork.h"
 #include "FileUtil.h"
+#include <cassert>
 
 template <typename T>
 ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std::vector<size_t> hiddenLayerSizes): layers()
@@ -8,7 +9,7 @@ ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std:
     size_t layersCount = hiddenLayerSizes.size()+1;
     // create layerSizes as a vector of every layer size, including inputs and outputs.
     std::vector<size_t> layerSizes = hiddenLayerSizes; // the copy to a new variable is just for legibility.
-    layerSizes.insert(0, inputCount);
+    layerSizes.insert(layerSizes.begin(), inputCount);
     layerSizes.push_back(outputCount);
 
 
@@ -32,7 +33,8 @@ ocr::NeuralNetwork<T>::NeuralNetwork(std::string pathname) : layers()
     // then read each layer.
     for(int i = 0; i<layerCount; i++)
     {
-        layers.emplace_back(Layer(file, previousLayerNeurons));
+        uint64_t neuronCount = FileUtil::readInt<uint64_t>(file);
+        layers.emplace_back(Layer<T>(file, previousLayerNeurons, neuronCount));
         previousLayerNeurons = layers[i].getNeuronCount();
     }
 
@@ -43,6 +45,7 @@ ocr::NeuralNetwork<T>::NeuralNetwork(std::string pathname) : layers()
 template <typename T>
 void ocr::NeuralNetwork<T>::writeToFile(std::string pathname)
 {
+    pathname += ".ocrweights";
     std::ofstream file = FileUtil::openFileForWrite(pathname);
 
     // write the header: the magic number, then the number of layers, followed by the size of the input layer.
@@ -90,13 +93,13 @@ ocr::Vector<T> ocr::NeuralNetwork<T>::evaluate(ocr::Vector<T> input)
     }
 
     // Check that the output vector is of the right size.
-    assert(toReturn.size() == layers[layers.size()-1].getNeuronCount());
+    assert(toReturn.getSize() == layers[layers.size()-1].getNeuronCount());
 
     return toReturn;
 }
 
 template <typename T>
-size_t getInputSize()
+size_t ocr::NeuralNetwork<T>::getInputSize()
 {
     assert(layers.size()!=0); // a neural net should never have zero layers.
     return layers[0].getInputCount();
@@ -118,25 +121,23 @@ template <typename T>
 T ocr::NeuralNetwork<T>::getBias(size_t layer, size_t neuron)
 {
     // using at instead of [] to throw an exception if this is out of bounds.
-    return layers.at(layer).getBiases().at(neuron);
+    return layers.at(layer).getBias(neuron);
 }
 
 template <typename T>
 void ocr::NeuralNetwork<T>::setBias(size_t layer, size_t neuron, T value)
 {
-    layers.at(layer).getBiases().at(neuron) = value;
+    layers.at(layer).setBias(neuron, value);
 }
 
 template <typename T>
 T ocr::NeuralNetwork<T>::getWeight(size_t layer, size_t neuronFrom, size_t neuronTo)
 {
-    ocr::Matrix<T> weights& = layers.at(layer).getWeights();
-    return weights.at(neuronTo).at(neuronFrom); // Row is the neuron in this layer, Column is the neuron in the previous index.   
+    return layers.at(layer).getWeight(neuronFrom, neuronTo); // Row is the neuron in this layer, Column is the neuron in the previous index.   
 }
 
 template <typename T>
 void ocr::NeuralNetwork<T>::setWeight(size_t layer, size_t neuronFrom, size_t neuronTo, T weight)
 {
-    ocr::Matrix<T> weights& = layers.at(layer).getWeights();
-    weights.at(neuronTo).at(neuronFrom) = weight;
+    layers.at(layer).setWeight(neuronFrom, neuronTo, weight);
 }
