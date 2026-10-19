@@ -6,9 +6,10 @@
 #include <cstdlib>
 #include <stdexcept>
 #include <format>
+#include <thread>
 
-#include "dataset.h"
-#include "dataset.ipp"
+#include "preprocessing/dataset.h"
+#include "preprocessing/dataset.ipp"
 
 namespace fs = std::filesystem;
 
@@ -64,9 +65,10 @@ int main(int argc, char* argv[]) {
 
             int imageId = data.getLabel(index);
 
-            std::string filename = std::to_string(imageId) + "-" + std::to_string(index) + ".png";
+            std::string filename = std::to_string(imageId) + "-" + std::to_string(index);
+    
+            img -> writeToFile(outputPath + "/" + filename);
 
-            img.writeToFile(outputPath + "/" + filename);
 
             index += 1;
         }
