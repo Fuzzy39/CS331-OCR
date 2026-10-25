@@ -19,22 +19,22 @@ ocr::Dataset<T>::Dataset(std::string imagePath, std::string labelPath): images()
 {
     // Okay! So, we need to parse these dataset files into a buttload of images.
     /// delegate it!
-    parseImages(imagePath);
-    parseLabels(labelPath);
+    // parseImages(imagePath);
+    // parseLabels(labelPath);
 
-    if(images.size() != labels.size())
-    {
-        std::ostringstream error;
-        error<<"Dataset::Dataset: Size mismatch between Images ("<<images.size()<<") and Labels ("<<labels.size()<<"). ";
-        throw std::invalid_argument(error.str());
-    }
+    // if(images.size() != labels.size())
+    // {
+    //     std::ostringstream error;
+    //     error<<"Dataset::Dataset: Size mismatch between Images ("<<images.size()<<") and Labels ("<<labels.size()<<"). ";
+    //     throw std::invalid_argument(error.str());
+    // }
 
 }
 
 template <typename T>
 void ocr::Dataset<T>::parseImages(std::string imagePath)
 {
-    
+
     // open the file for reading. Complain dramatically if something went wrong.
     std::ifstream file = FileUtil::openFileForRead(imagePath);
 

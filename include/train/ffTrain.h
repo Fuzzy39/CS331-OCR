@@ -4,7 +4,9 @@
 #define FF_TRAIN_H
 
 #include "neural_network/neuralNetwork.h"
+#include <applications/digitClassifier.h>
 #include "preprocessing/dataset.h"
+#include "data_structures/vector.h"
 
 namespace ocr
 {
@@ -13,23 +15,28 @@ namespace ocr
     {
     private:
         NeuralNetwork<T> &network;
-        ocr::Dataset<double> &trainingData;
-        ocr::Dataset<double> &testingData;
+        ocr::Dataset<Digit> &trainingData;
+        ocr::Dataset<Digit> &testingData;
 
         double learningRate;
         size_t batchSize;
 
     public:
-        FFTrain(NeuralNetwork<T> &network, ocr::Dataset<double> &trainingData, ocr::Dataset<double> &testingData, double learningRate, size_t batchSize);
+        FFTrain(NeuralNetwork<T> &network, ocr::Dataset<Digit> &trainingData, ocr::Dataset<Digit> &testingData, double learningRate, size_t batchSize);
 
         // returns test data loss after training for epochs epochs.
-        ocr::Vector<double> train(int epochs);
-        NeuralNetwork<T> &getNetwork();
+        ocr::Vector<double> train(int epochs, ocr::Vector<double>& output, ocr::Vector<double>& target);
+        
+        NeuralNetwork<T> &getNetwork() const;
+        double getLearningRate() const;
+        size_t getBatchSize() const;
 
     private:
         // helper methods
-        double lossFunction(const std::vector<T> &output, const std::vector<T> &target);
-        void backpropagate(const std::vector<T> &input, const std::vector<T> &target);
+        ocr::Vector<double> softMax(const ocr::Vector<double>& output);
+        double costFunction(const ocr::Vector<T>& output, const ocr::Vector<T>& target);
+        // ocr::Vector<double> lossFunction(const ocr::Vector<T>& output, const ocr::Vector<T>& target);
+        void backpropagate(const ocr::Vector<T> &input, const ocr::Vector<T> &target);
         void updateWeightsAndBiases();
     };
 }
