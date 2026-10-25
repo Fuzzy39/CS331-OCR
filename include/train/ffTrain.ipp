@@ -63,14 +63,17 @@ ocr::Vector<double> ocr::FFTrain<T>::softMax(const ocr::Vector<double>& output) 
     return softMaxLogits;
 }
 
-
 // cost function (single training example)
 // take model output function and compare against true target value
-
-// template <typename T>
-// double ocr::FFTrain<T>::costFunction(const ocr::Vector<T>& output, const T target) {
-
-// }
+// uses categorical cross entropy formula:
+// L(y,y') = - (SUM from 0 to output size - 1) yi * ln(yi')
+// where y is target and y' is predicted
+// however, since 9/10 of yi values are 0.0, then this really reduces to:
+// L(y, y') = -ln(y'c) where y'c is logit value at predicted index
+template <typename T>
+double ocr::FFTrain<T>::costFunction(const ocr::Vector<T>& output, const T target) {
+    return (-1 * std::log(output[target]));
+}
 
 // loss function (batches multiple training examples)
 // template <typename T>
@@ -79,8 +82,11 @@ ocr::Vector<double> ocr::FFTrain<T>::softMax(const ocr::Vector<double>& output) 
 // }
 
 template <typename T>
-ocr::Vector<double> FFTrain<T>::train(int epochs, ocr::Vector<double>& output, ocr::Vector<double>& target) {
-    return this->softMax(output);
+ocr::Vector<double> FFTrain<T>::train(int epochs, ocr::Vector<double>& output, double target) {
+    double cost = this->costFunction(this->softMax(output), target);
+    cout << "cost: " << to_string(cost) << endl;
+
+    return output;
 }
 
 

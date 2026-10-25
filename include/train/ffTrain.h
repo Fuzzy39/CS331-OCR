@@ -25,7 +25,7 @@ namespace ocr
         FFTrain(NeuralNetwork<T> &network, ocr::Dataset<Digit> &trainingData, ocr::Dataset<Digit> &testingData, double learningRate, size_t batchSize);
 
         // returns test data loss after training for epochs epochs.
-        ocr::Vector<double> train(int epochs, ocr::Vector<double>& output, ocr::Vector<double>& target);
+        ocr::Vector<double> train(int epochs, ocr::Vector<double>& output, double target);
         
         NeuralNetwork<T> &getNetwork() const;
         double getLearningRate() const;
@@ -34,7 +34,7 @@ namespace ocr
     private:
         // helper methods
         ocr::Vector<double> softMax(const ocr::Vector<double>& output);
-        double costFunction(const ocr::Vector<T>& output, const ocr::Vector<T>& target);
+        double costFunction(const ocr::Vector<T>& output, const T target);
         // ocr::Vector<double> lossFunction(const ocr::Vector<T>& output, const ocr::Vector<T>& target);
         void backpropagate(const ocr::Vector<T> &input, const ocr::Vector<T> &target);
         void updateWeightsAndBiases();
