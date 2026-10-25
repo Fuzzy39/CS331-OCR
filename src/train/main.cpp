@@ -1,4 +1,5 @@
 #include <iostream>
+#include "ffTrain.h"
 #include "main.h"
 
 int main(void)

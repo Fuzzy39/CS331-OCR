@@ -2,6 +2,10 @@
 #include "FileUtil.h"
 #include <iomanip>
 
+// might not be needed for windows, but I need these for MAC
+#include <bit>
+#include <sstream> 
+
 const uint32_t FileUtil::MNIST_IMAGE_MAGIC = 2051; // magic number for mnist image file.  
 const uint32_t FileUtil::MNIST_LABEL_MAGIC = 2049; // magic number for mnist label file.
 const uint32_t FileUtil::OCR_WEIGHTS_MAGIC = 0x0C40; // magic number for our weights file.

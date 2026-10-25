@@ -2,6 +2,8 @@ cmake_minimum_required(VERSION 3.28)
 
 project(OCR LANGUAGES CXX)
 set (CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_CXX_EXTENSIONS OFF)
 
 include_directories(PUBLIC "include/shared")
 
@@ -12,6 +14,7 @@ add_library(ocr_lib STATIC
 "include/shared/preprocessing/dataset.ipp"
 "include/shared/neural_network/neuralNetwork.ipp"
 "include/shared/neural_network/layer.ipp"
+"include/train/ffTrain.ipp"
 )
 
 # Extract

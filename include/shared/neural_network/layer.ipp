@@ -3,6 +3,7 @@
 #include "neural_network/layer.h"
 #include "FileUtil.h"
 #include <random>
+#include <string>
 
 template <typename T>
 ocr::Layer<T>::Layer(size_t inputCount, size_t neuronCount)
@@ -147,8 +148,8 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs)
     if(inputs.getSize()!=getInputCount())
     {
         std::ostringstream error;
-        error << "Wrong size for input vector. Got size " <<inputs.getSize()
-            <<", but expected "+getInputCount() <<".";
+        error << "Wrong size for input vector. Got size " << inputs.getSize()
+            <<", but expected " + std::to_string(getInputCount()) << ".";
         throw std::invalid_argument(error.str());
     }
 
