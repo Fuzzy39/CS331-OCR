@@ -55,7 +55,7 @@ int main(void)
     std::cout << "6" << std::endl;
     trainMNIST.train(10, so, 6);
 
-
+    
 
 
     return 0;

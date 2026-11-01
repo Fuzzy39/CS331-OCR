@@ -10,6 +10,8 @@
 #include <string>
 #include "data_structures/vector.h"
 
+// include guards
+
 using namespace std;
 
 template <typename T>
@@ -81,6 +83,12 @@ double ocr::FFTrain<T>::costFunction(const ocr::Vector<T>& output, const T targe
     
 // }
 
+
+// back propagation
+
+
+
+
 template <typename T>
 ocr::Vector<double> FFTrain<T>::train(int epochs, ocr::Vector<double>& output, double target) {
     double cost = this->costFunction(this->softMax(output), target);
@@ -88,6 +96,8 @@ ocr::Vector<double> FFTrain<T>::train(int epochs, ocr::Vector<double>& output, d
 
     return output;
 }
+
+
 
 
 // getters

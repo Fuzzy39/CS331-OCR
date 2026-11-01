@@ -30,7 +30,7 @@ namespace ocr
         NeuralNetwork<T> &getNetwork() const;
         double getLearningRate() const;
         size_t getBatchSize() const;
-
+        
     private:
         // helper methods
         ocr::Vector<double> softMax(const ocr::Vector<double>& output);

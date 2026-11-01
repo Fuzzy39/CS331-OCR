@@ -141,7 +141,6 @@ void ocr::Layer<T>::setWeight(size_t inputNeuron, size_t neuron, T weight )
 }
 
 
-
 template <typename T>
 ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs)
 {
@@ -163,6 +162,7 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs)
         output[i] = sigmoid(output[i]);
     }
 
+    
     return output;
 }
 
