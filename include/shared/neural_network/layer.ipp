@@ -3,6 +3,7 @@
 #include "neural_network/layer.h"
 #include "FileUtil.h"
 #include <random>
+#include <string>
 
 template <typename T>
 ocr::Layer<T>::Layer(size_t inputCount, size_t neuronCount)
@@ -28,7 +29,7 @@ ocr::Layer<T>::Layer(std::ifstream& input, size_t previousLayerNeurons, size_t l
             // Also, I don't know how endianness works for doubles and floats.
             T weight = 0;
             // should probably do a static_cast or something here.
-            input.read((char*)&weight, sizeof(T));
+            input.read(reinterpret_cast<char*>(&weight), sizeof(T));
             weights.set(row, col, weight);
         }
     }
@@ -38,7 +39,7 @@ ocr::Layer<T>::Layer(std::ifstream& input, size_t previousLayerNeurons, size_t l
     {
         T bias = 0;
         // should probably do a static_cast or something here.
-        input.read((char*)&bias, sizeof(T));
+        input.read(reinterpret_cast<char*>(&bias), sizeof(T));
         biases[i] = bias;
     }    
 
@@ -148,7 +149,7 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs)
     {
         std::ostringstream error;
         error << "Wrong size for input vector. Got size " <<inputs.getSize()
-            <<", but expected "+getInputCount() <<".";
+            <<", but expected "<<getInputCount() <<".";
         throw std::invalid_argument(error.str());
     }
 

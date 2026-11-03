@@ -1,6 +1,8 @@
 #pragma once
 #include "FileUtil.h"
 #include <iomanip>
+#include <bit>
+#include <sstream>
 
 const uint32_t FileUtil::MNIST_IMAGE_MAGIC = 2051; // magic number for mnist image file.  
 const uint32_t FileUtil::MNIST_LABEL_MAGIC = 2049; // magic number for mnist label file.
