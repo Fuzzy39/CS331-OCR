@@ -27,8 +27,6 @@ namespace ocr
     private:
         void parseImages(std::string imagePath);
         void parseLabels(std::string labelPath);
-        void verifyMagicNumber(std::ifstream& file, uint32_t expected, std::string filePath);
-        uint32_t readIntFromFile(std::ifstream& file, std::string filePath);
     public:
 
         size_t getImageCount();

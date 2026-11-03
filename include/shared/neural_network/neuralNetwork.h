@@ -17,12 +17,18 @@ namespace ocr
         NeuralNetwork(size_t inputCount, size_t outputCount, std::vector<size_t> hiddenLayerSizes);
 
         // File I/O
+        // includes file extension.
         NeuralNetwork(std::string pathname);
 
+        // do not include file extension in pathname. It's provided for you.
         void writeToFile(std::string pathname);
 
         //initialize network with random weights
         void randomizeNetwork();
+
+        // Print the network.
+        void print();
+
 
         // evauluate the neural net for a given input.
         ocr::Vector<T> evaluate(ocr::Vector<T> input);
@@ -47,4 +53,5 @@ namespace ocr
     };
 }
 
+#include "neuralNetwork.ipp"
 #endif

@@ -17,26 +17,32 @@ namespace ocr
         Vector<T> biases;
 
     public:
-        Layer(size_t neuronCount, size_t inputCount);
+        Layer(size_t inputCount, size_t neuronCount);
         // for file io
-        Layer(std::istream& input); // This may need additional parameters. Not 100% sure at present.
-        void serialize(std::ostream& output);
+        Layer(std::ifstream& input, size_t previousLayerSize, size_t layerSize);
+        void serialize(std::ofstream& output);
 
         void randomizeLayer();
 
+        void print();
    
         // how big are we?
         size_t getNeuronCount();
         size_t getInputCount();
 
+
         // bias vector
-        Vector<T>& getBiases();
+        T getBias(size_t neuron);
+        void setBias(size_t neuron, T bias); 
 
         // weight matrix
-        Matrix<T>& getWeights();
+        T getWeight(size_t inputNeuron, size_t neuron);
+        void setWeight(size_t inputNeuron, size_t neuron, T bias);
+
+    
 
         // computations
-        Vector<T> evaluate(const Vector<T>& inputs);
+        Vector<T> evaluate(Vector<T>& inputs);
 
         // How is a layer evaluated?
         // The following calulation is performed:
@@ -48,7 +54,10 @@ namespace ocr
         //      biases is a vector of size N
         //      and sigmoid is a function performed on each value in the output vector that serves to clamp the value between -1 and 1.
 
-        
+    private:
+        static inline double sigmoid(double x);
     };
 }
+
+#include "layer.ipp"
 #endif
