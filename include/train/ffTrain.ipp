@@ -77,18 +77,6 @@ double ocr::FFTrain<T>::costFunction(const ocr::Vector<T>& output, const T targe
     return (-1 * std::log(output[target]));
 }
 
-// loss function (batches multiple training examples)
-// template <typename T>
-// vector<double> ocr::FFTrain<T>::lossFunction(const vector<T>& output, const vector<T>& target) {
-    
-// }
-
-
-// back propagation
-
-
-
-
 template <typename T>
 ocr::Vector<double> FFTrain<T>::train(int epochs, ocr::Vector<double>& output, double target) {
     double cost = this->costFunction(this->softMax(output), target);
@@ -96,6 +84,48 @@ ocr::Vector<double> FFTrain<T>::train(int epochs, ocr::Vector<double>& output, d
 
     return output;
 }
+
+
+// back propagation and gradient descent
+
+template <typename T>
+void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T> &input, const ocr::Vector<T> &target) {
+
+}
+
+template <typename T>
+void ocr::FFTrain<T>::updateWeights(const int layer, const ocr::Matrix<double>& weightDerivatives) {
+
+}
+
+template <typename T>
+void ocr::FFTrain<T>::updateBiases(const int layer, const ocr::Matrix<double>& biasDerivatives) {
+
+}
+
+// gradient calculations
+
+template <typename T>
+ocr::Vector<double> ocr::FFTrain<T>::cceWRTpredicted(const ocr::Vector<double>& predicted, const T target) {
+
+}
+
+template <typename T>
+ocr::Matrix<double> ocr::FFTrain<T>::cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const ocr::Vector<double>& prevLayerActivationValues) {
+
+}
+
+template <typename T>
+ocr::Vector<double> ocr::FFTrain<T>::cceWRTpla(const ocr::Matrix<double>& layerWeights, const ocr::Vector<double>& outputErrorSignal) {
+
+}
+
+template <typename T>
+ocr::Vector<double> ocr::FFTrain<T>::layerErrorSignal(const ocr::Vector<double>& layerGradient, const ocr::Vector<double> preActivationLogits) {
+    
+}
+
+
 
 
 
