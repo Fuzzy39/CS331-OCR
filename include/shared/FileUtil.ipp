@@ -1,6 +1,8 @@
 #pragma once
 #include "FileUtil.h"
 #include <iomanip>
+#include <bit>
+#include <sstream>
 
 // might not be needed for windows, but I need these for MAC
 #include <bit>

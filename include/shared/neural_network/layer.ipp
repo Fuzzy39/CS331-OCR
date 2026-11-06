@@ -29,7 +29,7 @@ ocr::Layer<T>::Layer(std::ifstream& input, size_t previousLayerNeurons, size_t l
             // Also, I don't know how endianness works for doubles and floats.
             T weight = 0;
             // should probably do a static_cast or something here.
-            input.read((char*)&weight, sizeof(T));
+            input.read(reinterpret_cast<char*>(&weight), sizeof(T));
             weights.set(row, col, weight);
         }
     }
@@ -39,7 +39,7 @@ ocr::Layer<T>::Layer(std::ifstream& input, size_t previousLayerNeurons, size_t l
     {
         T bias = 0;
         // should probably do a static_cast or something here.
-        input.read((char*)&bias, sizeof(T));
+        input.read(reinterpret_cast<char*>(&bias), sizeof(T));
         biases[i] = bias;
     }    
 

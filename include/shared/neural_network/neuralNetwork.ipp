@@ -79,6 +79,7 @@ void ocr::NeuralNetwork<T>::print()
     {
         std::cout<<"layer "<<i<<" ("<<layer.getNeuronCount()<<" neurons):\n";
         layer.print();
+        i++;
     }
 }
 
