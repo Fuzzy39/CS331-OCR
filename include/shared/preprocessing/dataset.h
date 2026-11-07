@@ -13,8 +13,6 @@ using ocr::Batch;
 
 namespace ocr
 {
-   
-
     template <typename T>
     class Dataset
     {

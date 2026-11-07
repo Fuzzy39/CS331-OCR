@@ -78,11 +78,10 @@ double ocr::FFTrain<T>::costFunction(const ocr::Vector<T>& output, const T targe
 }
 
 template <typename T>
-ocr::Vector<double> FFTrain<T>::train(int epochs, ocr::Vector<double>& output, double target) {
-    double cost = this->costFunction(this->softMax(output), target);
-    cout << "cost: " << to_string(cost) << endl;
+ocr::Vector<double> FFTrain<T>::train(int epochs) {
+    
 
-    return output;
+
 }
 
 

@@ -24,8 +24,8 @@ namespace ocr
     public:
         FFTrain(NeuralNetwork<T> &network, ocr::Dataset<Digit> &trainingData, ocr::Dataset<Digit> &testingData, double learningRate, size_t batchSize);
 
-        // returns test data loss after training for epochs epochs.
-        ocr::Vector<double> train(int epochs, ocr::Vector<double>& output, double target);
+        // returns test data loss after training for X epochs.
+        ocr::Vector<double> train(int epochs);
         
         NeuralNetwork<T> &getNetwork() const;
         double getLearningRate() const;

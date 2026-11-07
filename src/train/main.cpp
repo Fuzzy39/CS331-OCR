@@ -1,3 +1,6 @@
+// this file trains the neural network on the MNIST dataset
+// and saves weights for classification
+
 #include <iostream>
 #include "ffTrain.h"
 #include "main.h"
@@ -9,10 +12,8 @@
 
 int main(void)
 {
-    std::cout << "Creating a Neural Network" << std::endl;
-    ocr::NeuralNetwork<double> nn(5, 3, std::vector<size_t>({4}));
-    nn.randomizeNetwork();
-    // nn.print();
+
+    // * Loading in the MNIST dataset
 
     // training data set
     Dataset<Digit> trainingData("../data/emnist-digits-train-images-idx3-ubyte", "../data/emnist-digits-train-labels-idx1-ubyte");
@@ -20,21 +21,51 @@ int main(void)
     // testing data set
     Dataset<Digit> testingData("../data/emnist-digits-test-images-idx3-ubyte", "../data/emnist-digits-test-labels-idx1-ubyte");
     
-    // misc
+    // sanity check that data was loaded/parsed correctly
+    std::cout << "--------------------------------------------" << std::endl;
+    std::cout << "Training Data Count: " << trainingData.getImageCount() << std::endl;
+    std::cout << "Testing Data Count: " << testingData.getImageCount() << std::endl;
+    std::cout << "--------------------------------------------\n" << std::endl;
+        
+    // * Creating a neural network
+
+    std::cout << "Creating a Neural Network" << std::endl;
+
+    // input: 784 (28x28 flattened image)
+    // output: 10 (digits 0-9)
+    // hidden layers: 128, 64, 64, 32
+
+    ocr::NeuralNetwork<double> nn(784, 10, std::vector<size_t>({128, 64, 64, 32}));
+    nn.randomizeNetwork();
+    nn.print();
+
+    // hyperparameters
     size_t batch_size = 30;
-    double learning_rate = 0.05;
+    double learning_rate = 0.05; // how fast we want our MNIST model to learn.
 
     ocr::FFTrain<double> trainMNIST(nn, trainingData, testingData, learning_rate, batch_size);
     
+
+
+
+
+
+
+
+
+
+
+
+
     // tests
 
     // sample output and target
-    Vector<double> so = {3.2, -1.2, 0.4, -0.1, 4.1, 0.5, -2.0, 1.3, 2.8, 0.3};
-    double st = 3;
+    // Vector<double> so = {3.2, -1.2, 0.4, -0.1, 4.1, 0.5, -2.0, 1.3, 2.8, 0.3};
+    // double st = 3;
 
     // test softmax
 
-    ocr::Vector<double> softmax = trainMNIST.train(10, so, st);
+    // ocr::Vector<double> softmax = trainMNIST.train(10, so, st);
     // for (size_t i = 0; i < 10; i++){
     //     std::cout << to_string(softmax[i]) << " ";
     // }
@@ -42,18 +73,18 @@ int main(void)
 
     // test cost function
 
-    std::cout << "Cost Function when target is..." << std::endl;
-    std::cout << "4" << std::endl;
-    trainMNIST.train(10, so, 4);
+    // std::cout << "Cost Function when target is..." << std::endl;
+    // std::cout << "4" << std::endl;
+    // trainMNIST.train(10, so, 4);
 
-    std::cout << "3" << std::endl;
-    trainMNIST.train(10, so, 3);
+    // std::cout << "3" << std::endl;
+    // trainMNIST.train(10, so, 3);
 
-    std::cout << "0" << std::endl;
-    trainMNIST.train(10, so, 0);
+    // std::cout << "0" << std::endl;
+    // trainMNIST.train(10, so, 0);
 
-    std::cout << "6" << std::endl;
-    trainMNIST.train(10, so, 6);
+    // std::cout << "6" << std::endl;
+    // trainMNIST.train(10, so, 6);
 
     
 

@@ -16,6 +16,7 @@ namespace fs = std::filesystem;
 
 int main(int argc, char *argv[])
 {
+
     if (argc != 3 && argc != 4)
     {
         std::cerr << "Usage: " << argv[0]
@@ -92,4 +93,5 @@ int main(int argc, char *argv[])
     }
 
     return 0;
+    
 }
