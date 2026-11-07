@@ -33,7 +33,6 @@ namespace ocr
         
     private:
         // helper methods
-        ocr::Vector<double> softMax(const ocr::Vector<double>& output);
         double costFunction(const ocr::Vector<T>& output, const T target);
       
         void backPropagate(const ocr::Vector<T> &input, const ocr::Vector<T> &target);

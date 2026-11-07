@@ -10,6 +10,9 @@
 #include <string>
 #include "data_structures/vector.h"
 
+#include "preprocessing/image.h"
+#include "applications/digitClassifier.h"
+
 // include guards
 
 using namespace std;
@@ -29,42 +32,6 @@ ocr::FFTrain<T>::FFTrain(
 {
 };
 
-// training functions
-
-// before computing the cost function using categorical-cross-entropy,
-// the output logits must be bounded by [0,1] and sum to 1.0.
-// For example, an output of [1.4,-2.3,4.1,...] does not fit this criteria
-// so, softmax converts these into positive values that add up to 1
-// NOTE: larger logits grow towards one while smaller logits grow towards zero
-
-template <typename T>
-ocr::Vector<double> ocr::FFTrain<T>::softMax(const ocr::Vector<double>& output) {
-    // first, need to find the max logit
-    double maxLogit = numeric_limits<double>::lowest();
-    for (size_t i = 0; i < output.getSize(); i++){
-        maxLogit = max(maxLogit, output[i]);
-    }   
-
-    // normalize logits using formula e^(logit - max_logit)
-    ocr::Vector<double> normalizedLogits(output.getSize());
-    double normalizedLogitsTotal = 0.0;
-
-    for (size_t i = 0; i < output.getSize(); i++) {
-        double normalizedLogit = std::exp(output[i] - maxLogit);
-        normalizedLogits[i] = normalizedLogit;
-        normalizedLogitsTotal += normalizedLogit;
-    }
-
-    // now, normalize logits between [0,1]
-    ocr::Vector<double> softMaxLogits(output.getSize());
-
-    for (size_t i = 0; i < output.getSize(); i++) {
-        softMaxLogits[i] = (normalizedLogits[i] / normalizedLogitsTotal);
-    }
-
-    return softMaxLogits;
-}
-
 // cost function (single training example)
 // take model output function and compare against true target value
 // uses categorical cross entropy formula:
@@ -80,6 +47,21 @@ double ocr::FFTrain<T>::costFunction(const ocr::Vector<T>& output, const T targe
 template <typename T>
 ocr::Vector<double> FFTrain<T>::train(int epochs) {
     
+    // ignore epochs for now
+    // train on one image and label at a time, for now
+
+    ocr::Image& testImage = this->testingData.getImage(0);
+    unique_ptr<ocr::Vector<T>> testImageVector = testImage.asFlatVector(ocr::Image::Format::Grayscale);
+
+    ocr::Digit& testLabel = this->testingData.getLabel(0);
+    
+    // evaluate forward pass
+    ocr::Vector<T> output = this->network.evaluate(*testImageVector);
+    output.visualize();
+    // cout << "Softmax: " << this->softMax(output)->visualize() << endl;
+    // cout << "Cost Function: " << this->costFunction(this->softMax(output), testLabel) << endl;
+
+
 
 
 }

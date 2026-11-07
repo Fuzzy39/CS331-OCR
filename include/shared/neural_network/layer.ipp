@@ -142,7 +142,7 @@ void ocr::Layer<T>::setWeight(size_t inputNeuron, size_t neuron, T weight )
 
 
 template <typename T>
-ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs)
+ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, bool lastLayer)
 {
     if(inputs.getSize()!=getInputCount())
     {
@@ -157,12 +157,25 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs)
     // with any luck, this'll just work. (Nope. I had to fix some things.)
     ocr::Vector<T> output = (weights * inputs.asColumn()) + biases.asColumn();
 
-    for(int i = 0; i< getNeuronCount(); i++)
-    {
-        output[i] = sigmoid(output[i]);
+    if (!lastLayer) {
+       for (int i = 0; i < getNeuronCount(); i++)
+       {
+           output[i] = sigmoid(output[i]);
+       } 
+    } else { // perform softmax
+        
+        // first, let's calculate the sum across all logits
+        double sum = 0.0;
+        for (int i = 0; i < getNeuronCount(); i++){
+            sum += std::exp(output[i]);
+        }
+
+        // now, let's calculate the softmax for each logit
+        for (int i = 0; i < getNeuronCount(); i++) {
+            output[i] = softmax(output[i], sum);
+        }
     }
 
-    
     return output;
 }
 
@@ -171,4 +184,15 @@ inline double ocr::Layer<T>::sigmoid(double x)
 {
     // should cap things between 1 and -1.
     return (2.0 / (1.0+ std::exp(-x))) - 1.0;
+}
+
+// before computing the cost function using categorical-cross-entropy,
+// the output logits must be bounded by [0,1] and sum to 1.0.
+// For example, an output of [1.4,-2.3,4.1,...] does not fit this criteria
+// so, softmax converts these into positive values that add up to 1
+// NOTE: larger logits grow towards one while smaller logits grow towards zero
+
+template <typename T>
+inline double ocr::Layer<T>::softmax(double x, double sum) {
+    return (std::exp(x) / sum);
 }

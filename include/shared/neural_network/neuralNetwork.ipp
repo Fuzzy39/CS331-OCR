@@ -88,9 +88,13 @@ ocr::Vector<T> ocr::NeuralNetwork<T>::evaluate(ocr::Vector<T> input)
 {
     // pass the vector through each layer until we get the output.
     ocr::Vector toReturn = input;
-    for(Layer<T> layer : layers)
-    {
-        toReturn = layer.evaluate(toReturn);
+
+    for (int i = 0; i < layers.size(); i++) {
+        if (i < layers.size() - 1) { 
+           toReturn = layers[i].evaluate(toReturn, false); // sigmoid
+        } else {
+            toReturn = layers[i].evaluate(toReturn, true); // softmax
+        }
     }
 
     // Check that the output vector is of the right size.

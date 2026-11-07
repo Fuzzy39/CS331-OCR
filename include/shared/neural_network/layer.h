@@ -42,7 +42,7 @@ namespace ocr
     
 
         // computations
-        Vector<T> evaluate(Vector<T>& inputs);
+        Vector<T> evaluate(Vector<T>& inputs, bool lastLayer = false);
 
         // How is a layer evaluated?
         // The following calulation is performed:
@@ -56,6 +56,7 @@ namespace ocr
 
     private:
         static inline double sigmoid(double x);
+        static inline double softmax(double x, double sum);
     };
 }
 
