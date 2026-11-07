@@ -4,6 +4,7 @@
 #include "FileUtil.h"
 #include <random>
 #include <string>
+#include "neural_network/neuralNetwork.h"
 
 template <typename T>
 ocr::Layer<T>::Layer(size_t inputCount, size_t neuronCount)
@@ -116,6 +117,12 @@ size_t ocr::Layer<T>::getInputCount()
 }
 
 template <typename T>
+ocr::Vector<T> ocr::Layer<T>::getBiases()
+{
+    return biases;
+}
+
+template <typename T>
 T ocr::Layer<T>::getBias(size_t neuron)
 {
     return biases[neuron];
@@ -127,6 +134,11 @@ void ocr::Layer<T>::setBias(size_t neuron, T bias)
     biases[neuron] = bias;
 } 
 
+template <typename T>
+ocr::Matrix<T> ocr::Layer<T>::getWeights()
+{
+    return weights;
+}
 
 template <typename T>
 T ocr::Layer<T>::getWeight(size_t inputNeuron, size_t neuron)
@@ -142,9 +154,9 @@ void ocr::Layer<T>::setWeight(size_t inputNeuron, size_t neuron, T weight )
 
 
 template <typename T>
-ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, bool lastLayer)
+ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, size_t layer_num, ocr::NeuralNetwork<T>& nn, bool lastLayer)
 {
-    if(inputs.getSize()!=getInputCount())
+    if(inputs.getSize()!=getInputCount())   
     {
         std::ostringstream error;
         error << "Wrong size for input vector. Got size " << inputs.getSize()
@@ -156,6 +168,9 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, bool lastLayer)
 
     // with any luck, this'll just work. (Nope. I had to fix some things.)
     ocr::Vector<T> output = (weights * inputs.asColumn()) + biases.asColumn();
+
+    // store pre-activation logits for backpropagation
+    nn.preActivationLogits[layer_num] = output;
 
     if (!lastLayer) {
        for (int i = 0; i < getNeuronCount(); i++)
@@ -175,6 +190,9 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, bool lastLayer)
             output[i] = softmax(output[i], sum);
         }
     }
+
+    // store activation values for backpropagation
+    nn.activationValues[layer_num] = output;
 
     return output;
 }

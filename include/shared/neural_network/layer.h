@@ -3,9 +3,11 @@
 
 #include "data_structures/vector.h"
 #include "data_structures/matrix.h"
-
+#include "neural_network/neuralNetwork.h"
 namespace ocr
-{
+{   
+    template<typename T>
+    class NeuralNetwork;
     template <typename T>
     class Layer 
     {
@@ -32,17 +34,19 @@ namespace ocr
 
 
         // bias vector
+        ocr::Vector<T> getBiases();
         T getBias(size_t neuron);
         void setBias(size_t neuron, T bias); 
 
         // weight matrix
+        ocr::Matrix<T> getWeights();
         T getWeight(size_t inputNeuron, size_t neuron);
         void setWeight(size_t inputNeuron, size_t neuron, T bias);
 
-    
+        
 
         // computations
-        Vector<T> evaluate(Vector<T>& inputs, bool lastLayer = false);
+        Vector<T> evaluate(Vector<T>& inputs, size_t layer_num, ocr::NeuralNetwork<T>& nn, bool lastLayer = false);
 
         // How is a layer evaluated?
         // The following calulation is performed:

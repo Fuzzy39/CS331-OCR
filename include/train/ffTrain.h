@@ -7,7 +7,7 @@
 #include <applications/digitClassifier.h>
 #include "preprocessing/dataset.h"
 #include "data_structures/vector.h"
-
+#include "applications/digitClassifier.h"
 namespace ocr
 {
     template <typename T>
@@ -33,9 +33,9 @@ namespace ocr
         
     private:
         // helper methods
-        double costFunction(const ocr::Vector<T>& output, const T target);
+        double costFunction(const ocr::Vector<T>& output, const ocr::Digit target);
       
-        void backPropagate(const ocr::Vector<T> &input, const ocr::Vector<T> &target);
+        void backPropagate(const ocr::Vector<T> &output, const ocr::Digit &target);
         void updateWeights(const int layer, const ocr::Matrix<double>& weightDerivatives);
         void updateBiases(const int layer, const ocr::Matrix<double>& biasDerivatives);
 
@@ -44,7 +44,7 @@ namespace ocr
 
         // partial derivative of cce (cost function) with respect to logits, or predicted values
         // returns s^[l], the output error signal
-        ocr::Vector<double> cceWRTpredicted(const ocr::Vector<double>& predicted, const T target);
+        ocr::Vector<double> cceWRTpredicted(const ocr::Vector<T>& predicted, const ocr::Digit target);
 
         // partial derivative of cee (cost function) with respect to weights
         ocr::Matrix<double> cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const ocr::Vector<double>& prevLayerActivationValues);
@@ -58,6 +58,9 @@ namespace ocr
 
         // calculate new S^[l] layer error signal where layer != L
         ocr::Vector<double> layerErrorSignal(const ocr::Vector<double>& layerGradient, const ocr::Vector<double> preActivationLogits);
+    
+        
+    
     };
 }
 

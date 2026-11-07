@@ -4,7 +4,7 @@
 #include <cassert>
 
 template <typename T>
-ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std::vector<size_t> hiddenLayerSizes): layers()
+ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std::vector<size_t> hiddenLayerSizes): layers(), preActivationLogits(), activationValues()
 {
     size_t layersCount = hiddenLayerSizes.size()+1;
     // create layerSizes as a vector of every layer size, including inputs and outputs.
@@ -12,15 +12,17 @@ ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std:
     layerSizes.insert(layerSizes.begin(), inputCount);
     layerSizes.push_back(outputCount);
 
-
     for(int i = 0; i<layersCount; i++)
     {
         layers.emplace_back(layerSizes[i], layerSizes[i+1]);
     }
+
+    preActivationLogits.reserve(layersCount);
+    activationValues.reserve(layersCount);
 }
 
 template <typename T>
-ocr::NeuralNetwork<T>::NeuralNetwork(std::string pathname) : layers()
+ocr::NeuralNetwork<T>::NeuralNetwork(std::string pathname) : layers(), preActivationLogits(), activationValues()
 {
     // read the file and check that it's a weights file.
     std::ifstream file = FileUtil::openFileForRead(pathname);
@@ -37,6 +39,9 @@ ocr::NeuralNetwork<T>::NeuralNetwork(std::string pathname) : layers()
         layers.emplace_back(Layer<T>(file, previousLayerNeurons, neuronCount));
         previousLayerNeurons = layers[i].getNeuronCount();
     }
+
+    preActivationLogits.reserve(layerCount);
+    activationValues.reserve(layerCount);
 
       // I don't think you need to call close, since ifstream should clean up in its destructor. but it seems polite? Sure.
     file.close();
@@ -91,9 +96,9 @@ ocr::Vector<T> ocr::NeuralNetwork<T>::evaluate(ocr::Vector<T> input)
 
     for (int i = 0; i < layers.size(); i++) {
         if (i < layers.size() - 1) { 
-           toReturn = layers[i].evaluate(toReturn, false); // sigmoid
+           toReturn = layers[i].evaluate(toReturn, i, *this); // sigmoid
         } else {
-            toReturn = layers[i].evaluate(toReturn, true); // softmax
+            toReturn = layers[i].evaluate(toReturn, i, *this, true); // softmax
         }
     }
 
@@ -145,4 +150,22 @@ template <typename T>
 void ocr::NeuralNetwork<T>::setWeight(size_t layer, size_t neuronFrom, size_t neuronTo, T weight)
 {
     layers.at(layer).setWeight(neuronFrom, neuronTo, weight);
+}
+
+template <typename T>
+ocr::Layer<T>& ocr::NeuralNetwork<T>::getLayer(size_t layer)
+{
+    return layers.at(layer);
+}
+
+// cache
+
+template <typename T>
+ocr::Vector<T>& ocr::NeuralNetwork<T>::getPreActivationLogits(size_t layer) {
+    return preActivationLogits[layer];
+}
+
+template <typename T>
+ocr::Vector<T>& ocr::NeuralNetwork<T>::getActivationValues(size_t layer) {
+    return activationValues[layer];
 }
