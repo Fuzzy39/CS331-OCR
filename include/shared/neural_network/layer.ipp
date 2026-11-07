@@ -116,6 +116,8 @@ size_t ocr::Layer<T>::getInputCount()
     return weights.getColumns();
 }
 
+// Biases
+
 template <typename T>
 ocr::Vector<T> ocr::Layer<T>::getBiases()
 {
@@ -135,6 +137,13 @@ void ocr::Layer<T>::setBias(size_t neuron, T bias)
 } 
 
 template <typename T>
+void ocr::Layer<T>::updateBiases(const ocr::Vector<T>& newBiases) {
+    this->biases = newBiases; // implicit deep copy
+}
+
+// Weights
+
+template <typename T>
 ocr::Matrix<T> ocr::Layer<T>::getWeights()
 {
     return weights;
@@ -150,6 +159,11 @@ template <typename T>
 void ocr::Layer<T>::setWeight(size_t inputNeuron, size_t neuron, T weight )
 {
    weights.set(neuron, inputNeuron, weight);
+}
+
+template <typename T>
+void ocr::Layer<T>::updateWeights(const ocr::Matrix<T>& newWeights) {
+    this->weights = newWeights; // implicit deep copy
 }
 
 

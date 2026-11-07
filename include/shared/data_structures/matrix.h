@@ -30,11 +30,15 @@ namespace ocr
 
         // computations
         Matrix<T> operator*(const Matrix<T>& other) const; // defined
+        Matrix<T> operator*(const T& scalar) const; // defined
         Matrix<T> operator+(const Matrix<T>& other) const; // defined
         Matrix<T> operator-(const Matrix<T>& other) const; // defined
-
+    
         // Hadamard product (element-wise multiplication)
         Matrix<T> operator%(const Matrix<T>& other) const; // defined
+
+        // deep copy
+        Matrix<T>& operator=(const Matrix<T>& other); // defined
 
         static Matrix<T> transpose(const Matrix<T>&); // defined
 
@@ -219,6 +223,18 @@ ocr::Matrix<T> ocr::Matrix<T>::operator*(const ocr::Matrix<T>& other) const {
 }
 
 template <typename T>
+ocr::Matrix<T> ocr::Matrix<T>::operator*(const T& scalar) const {
+    ocr::Matrix<T> new_matrix(this->rows, this->columns);
+    for (int row = 0; row < this->rows; row++) {
+        for (int col = 0; col < this->columns; col++) {
+            T new_val = (*(this->data))[row][col] * scalar;
+            new_matrix.set(row, col, new_val);
+        }
+    }
+    return new_matrix;
+}
+
+template <typename T>
 ocr::Matrix<T> ocr::Matrix<T>::operator%(const ocr::Matrix<T>& other) const {
     // matrices must be same dimensions
     if (this->rows != other.getRows() || this->columns != other.getColumns()) {
@@ -240,6 +256,17 @@ ocr::Matrix<T> ocr::Matrix<T>::operator%(const ocr::Matrix<T>& other) const {
 
     return new_matrix;
 }
+
+template <typename T>
+ocr::Matrix<T>& ocr::Matrix<T>::operator=(const ocr::Matrix<T>& other) {
+   
+    this->rows = other.getRows();
+    this->columns = other.getColumns();
+    this->data = std::make_shared<std::vector<std::vector<T>>>(other.getData()); // deep copy
+
+    return *this;
+} 
+
 
 template <typename T>
 ocr::Matrix<T> ocr::Matrix<T>::transpose(const ocr::Matrix<T>& other) {

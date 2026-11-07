@@ -92,7 +92,7 @@ template <typename T>
 ocr::Vector<T> ocr::NeuralNetwork<T>::evaluate(ocr::Vector<T> input)
 {
     // pass the vector through each layer until we get the output.
-    ocr::Vector toReturn = input;
+    ocr::Vector<T> toReturn = input;
 
     for (int i = 0; i < layers.size(); i++) {
         if (i < layers.size() - 1) { 

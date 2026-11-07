@@ -37,11 +37,13 @@ namespace ocr
         ocr::Vector<T> getBiases();
         T getBias(size_t neuron);
         void setBias(size_t neuron, T bias); 
+        void updateBiases(const ocr::Vector<T>& biasGradients);
 
         // weight matrix
         ocr::Matrix<T> getWeights();
         T getWeight(size_t inputNeuron, size_t neuron);
         void setWeight(size_t inputNeuron, size_t neuron, T bias);
+        void updateWeights(const ocr::Matrix<T>& weightGradients);
 
         
 

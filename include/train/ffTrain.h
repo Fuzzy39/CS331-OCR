@@ -34,10 +34,7 @@ namespace ocr
     private:
         // helper methods
         double costFunction(const ocr::Vector<T>& output, const ocr::Digit target);
-      
         void backPropagate(const ocr::Vector<T> &output, const ocr::Digit &target);
-        void updateWeights(const int layer, const ocr::Matrix<double>& weightDerivatives);
-        void updateBiases(const int layer, const ocr::Matrix<double>& biasDerivatives);
 
         // gradient calculations
         // I wrote down where all of these came from (will send a scanned PDF), I understand most, but still sort of confusing lol
@@ -47,7 +44,7 @@ namespace ocr
         ocr::Vector<double> cceWRTpredicted(const ocr::Vector<T>& predicted, const ocr::Digit target);
 
         // partial derivative of cee (cost function) with respect to weights
-        ocr::Matrix<double> cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const ocr::Vector<double>& prevLayerActivationValues);
+        ocr::Matrix<double> cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const size_t layer_num);
 
         // partial derivative of cce (cost function) with respect to bias
         // not needed since it is directly equivalent to output error signal at layer l,
@@ -57,10 +54,11 @@ namespace ocr
         ocr::Vector<double> cceWRTpla(const ocr::Matrix<double>& layerWeights, const ocr::Vector<double>& outputErrorSignal);
 
         // calculate new S^[l] layer error signal where layer != L
-        ocr::Vector<double> layerErrorSignal(const ocr::Vector<double>& layerGradient, const ocr::Vector<double> preActivationLogits);
+        ocr::Vector<double> layerErrorSignal(const ocr::Vector<double>& layerGradient, const size_t layer_num);
     
         // sigmoid gradient
-        
+        ocr::Vector<double> sigmoidGradient(size_t layer);
+
     
     };
 }

@@ -57,7 +57,7 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
     
     // evaluate forward pass
     ocr::Vector<T> output = this->network.evaluate(*testImageVector);
-    
+
     // calculate the cost function
     double cost = this->costFunction(output, testLabel);
     cout << "Cost Function: " << cost << endl;
@@ -76,18 +76,37 @@ void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T> &output, const ocr::Dig
     ocr::Matrix<double> lastLayerWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 1).getWeights();
     ocr::Vector<double> lastLayerPla = this->cceWRTpla(lastLayerWeights, lastLayerOutputSignal);
 
-    
-    
+    // following my notes
+    // (step A) get incoming weight gradients across activation function
+    ocr::Vector<double> currentErrorSignal = this->layerErrorSignal(lastLayerPla, this->network.getLayerSizes()->size() - 2);
 
-}
+    // (step B) compute weights gradient
+    ocr::Matrix<double> currentLayerWeightDerivatives = this->cceWRTweights(currentErrorSignal, this->network.getLayerSizes()->size() - 2);
 
-template <typename T>
-void ocr::FFTrain<T>::updateWeights(const int layer, const ocr::Matrix<double>& weightDerivatives) {
+    // (Step C) compute bias gradient
+    // not needed since it is directly equivalent to output error signal at layer l,
+    // which is returned by layerErrorSignal
 
-}
+    // (Step D) pass gradient to next previous layer
+    ocr::Matrix<double> currentLayerWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 2).getWeights();
+    ocr::Vector<double> nextLayerPla = this->cceWRTpla(currentLayerWeights, currentErrorSignal);
 
-template <typename T>
-void ocr::FFTrain<T>::updateBiases(const int layer, const ocr::Matrix<double>& biasDerivatives) {
+    // (Step E) update weights and biases for layer l
+
+    // new weights (W[l] - learningRate * dC/dW[l])
+    ocr::Matrix<double> subtractFrom = currentLayerWeightDerivatives * this->learningRate;
+    cout << subtractFrom.getRows() << " rows and " << subtractFrom.getColumns() << " columns." << endl;
+    ocr::Matrix<double> newWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 2).getWeights();
+    cout << newWeights.getRows() << " rows and " << newWeights.getColumns() << " columns." << endl;
+    // this->network.getLayer(this->network.getLayerSizes()->size() - 2).updateWeights(newWeights);
+
+    // new bias (b[l] - learningRate * dC/db[l])
+    // ocr::Vector<double> newBiases = this->network.getLayer(this->network.getLayerSizes()->size() - 2).getBiases().asColumn() - (currentErrorSignal * this->learningRate).asColumn();
+    // this->network.getLayer(this->network.getLayerSizes()->size() - 2).updateBiases(newBiases);
+
+    // visualize
+    // newWeights.visualize();
+    // newBiases.visualize();
 
 }
 
@@ -108,8 +127,12 @@ ocr::Vector<double> ocr::FFTrain<T>::cceWRTpredicted(const ocr::Vector<T>& predi
 }
 
 template <typename T>
-ocr::Matrix<double> ocr::FFTrain<T>::cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const ocr::Vector<double>& prevLayerActivationValues) {
+ocr::Matrix<double> ocr::FFTrain<T>::cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const size_t layer_num) {
+    ocr::Vector<double> previousLayerActivationValues = this->network.getActivationValues(layer_num);
+    ocr::Vector<double> outputErrorSignalCopy = outputErrorSignal;
 
+    previousLayerActivationValues.transpose();
+    return outputErrorSignalCopy.asColumn() * previousLayerActivationValues;
 }
 
 template <typename T>
@@ -119,9 +142,27 @@ ocr::Vector<double> ocr::FFTrain<T>::cceWRTpla(const ocr::Matrix<double>& layerW
 }
 
 template <typename T>
-ocr::Vector<double> ocr::FFTrain<T>::layerErrorSignal(const ocr::Vector<double>& layerGradient, const ocr::Vector<double> preActivationLogits) {
+ocr::Vector<double> ocr::FFTrain<T>::layerErrorSignal(const ocr::Vector<double>& layerGradient, const size_t layer_num) {
+    ocr::Vector<double> sigmoidGrad = this->sigmoidGradient(layer_num);
+    ocr::Vector<double> layerGradientCopy = layerGradient;
+    return layerGradientCopy.asColumn() % sigmoidGrad.asColumn();
+}   
 
+// sigmoid gradient
+template <typename T>
+ocr::Vector<double> ocr::FFTrain<T>::sigmoidGradient(size_t layer) {
+    // g'(z[l]) = a[l] * (1 - a[l]) 
+    ocr::Vector<double> activationValues = this->network.getActivationValues(layer);
+    
+    // fill vector with 1.0 - a[l]
+    std::vector<double> onesVctr(activationValues.getSize(), 1.0);
+    ocr::Vector<double> ones(activationValues.getSize());
+    ones.fill(onesVctr);
+    ocr::Vector<double> oneMinusActivation = ones.asColumn() - activationValues.asColumn();
+
+    return activationValues.asColumn() % oneMinusActivation.asColumn();
 }
+
 
 // getters
 
