@@ -19,15 +19,15 @@ ocr::Dataset<T>::Dataset(std::string imagePath, std::string labelPath): images()
 {
     // Okay! So, we need to parse these dataset files into a buttload of images.
     /// delegate it!
-    // parseImages(imagePath);
-    // parseLabels(labelPath);
+    parseImages(imagePath);
+    parseLabels(labelPath);
 
-    // if(images.size() != labels.size())
-    // {
-    //     std::ostringstream error;
-    //     error<<"Dataset::Dataset: Size mismatch between Images ("<<images.size()<<") and Labels ("<<labels.size()<<"). ";
-    //     throw std::invalid_argument(error.str());
-    // }
+    if(images.size() != labels.size())
+    {
+        std::ostringstream error;
+        error<<"Dataset::Dataset: Size mismatch between Images ("<<images.size()<<") and Labels ("<<labels.size()<<"). ";
+        throw std::invalid_argument(error.str());
+    }
 
 }
 
@@ -113,10 +113,6 @@ void ocr::Dataset<T>::parseLabels(std::string labelPath)
     // I don't think you need to call close, since ifstream should clean up in its destructor. but it seems polite? Sure.
     file.close();
 }
-
-
-
-
 
 template <typename T>
 size_t ocr::Dataset<T>::getImageCount()

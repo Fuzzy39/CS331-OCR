@@ -7,7 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 include_directories(PUBLIC "include/shared")
 
-
 add_library(ocr_lib STATIC 
 "include/shared/FileUtil.ipp"
 "src/shared/preprocessing/image.cpp"
@@ -15,6 +14,7 @@ add_library(ocr_lib STATIC
 "include/shared/neural_network/neuralNetwork.ipp"
 "include/shared/neural_network/layer.ipp"
 "include/train/ffTrain.ipp"
+"src/shared/preprocessing/batch.cpp"
 )
 
 # Extract
@@ -38,3 +38,8 @@ if(true)
     target_include_directories(test PUBLIC "include/shared")
     target_link_libraries(test ocr_lib)
 endif()
+
+# Shared (Testing)
+# add_executable(shared "src/shared/data_structures/main.cpp")
+# target_include_directories(shared PUBLIC "include/shared")
+# target_link_libraries(shared ocr_lib)

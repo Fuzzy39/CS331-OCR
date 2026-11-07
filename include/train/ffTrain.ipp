@@ -122,13 +122,8 @@ ocr::Vector<double> ocr::FFTrain<T>::cceWRTpla(const ocr::Matrix<double>& layerW
 
 template <typename T>
 ocr::Vector<double> ocr::FFTrain<T>::layerErrorSignal(const ocr::Vector<double>& layerGradient, const ocr::Vector<double> preActivationLogits) {
-    
+
 }
-
-
-
-
-
 
 // getters
 
