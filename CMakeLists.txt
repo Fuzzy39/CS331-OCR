@@ -37,6 +37,10 @@ if(true)
     add_executable(test "src/testing/NeuralNetwork.cpp")
     target_include_directories(test PUBLIC "include/shared")
     target_link_libraries(test ocr_lib)
+
+    add_executable(matrix "src/testing/data_structures.cpp")
+    target_include_directories(matrix PUBLIC "include/shared")
+    target_link_libraries(matrix ocr_lib)
 endif()
 
 # Shared (Testing)

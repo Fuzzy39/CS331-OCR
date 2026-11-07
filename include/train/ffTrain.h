@@ -59,6 +59,7 @@ namespace ocr
         // calculate new S^[l] layer error signal where layer != L
         ocr::Vector<double> layerErrorSignal(const ocr::Vector<double>& layerGradient, const ocr::Vector<double> preActivationLogits);
     
+        // sigmoid gradient
         
     
     };

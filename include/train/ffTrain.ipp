@@ -76,15 +76,7 @@ void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T> &output, const ocr::Dig
     ocr::Matrix<double> lastLayerWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 1).getWeights();
     ocr::Vector<double> lastLayerPla = this->cceWRTpla(lastLayerWeights, lastLayerOutputSignal);
 
-    cout << " get cached logits for each layer" << endl;
-    for (int i = 0; i < this->network.getLayerSizes()->size(); i++) {
-        ocr::Vector<T> preActivationLogits = this->network.getPreActivationLogits(i);
-        ocr::Vector<T> activationValues = this->network.getActivationValues(i);
-        cout << "Layer " << i << " pre-activation logits: ";
-        preActivationLogits.visualize();
-        cout << "Layer " << i << " activation values: ";
-        activationValues.visualize();
-    }
+    
     
 
 }
