@@ -49,7 +49,6 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
     
     // ignore epochs for now
     // train on one image and label at a time, for now
-
     ocr::Image& testImage = this->testingData.getImage(0);
     unique_ptr<ocr::Vector<T>> testImageVector = testImage.asFlatVector(ocr::Image::Format::Grayscale);
 
@@ -70,7 +69,7 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
 // back propagation and gradient descent
 
 template <typename T>
-void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T> &output, const ocr::Digit &target) {
+void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T> &output, const ocr::Digit &target) { 
     ocr::Vector<double> lastLayerOutputSignal = this->cceWRTpredicted(output, target);
     
     ocr::Matrix<double> lastLayerWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 1).getWeights();
@@ -94,20 +93,14 @@ void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T> &output, const ocr::Dig
     // (Step E) update weights and biases for layer l
 
     // new weights (W[l] - learningRate * dC/dW[l])
-    ocr::Matrix<double> subtractFrom = currentLayerWeightDerivatives * this->learningRate;
-    cout << subtractFrom.getRows() << " rows and " << subtractFrom.getColumns() << " columns." << endl;
+    ocr::Matrix<double> subtractFrom = currentLayerWeightDerivatives * this->learningRate;    
     ocr::Matrix<double> newWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 2).getWeights();
-    cout << newWeights.getRows() << " rows and " << newWeights.getColumns() << " columns." << endl;
-    // this->network.getLayer(this->network.getLayerSizes()->size() - 2).updateWeights(newWeights);
+    this->network.getLayer(this->network.getLayerSizes()->size() - 2).updateWeights(newWeights);
 
     // new bias (b[l] - learningRate * dC/db[l])
-    // ocr::Vector<double> newBiases = this->network.getLayer(this->network.getLayerSizes()->size() - 2).getBiases().asColumn() - (currentErrorSignal * this->learningRate).asColumn();
-    // this->network.getLayer(this->network.getLayerSizes()->size() - 2).updateBiases(newBiases);
-
-    // visualize
-    // newWeights.visualize();
-    // newBiases.visualize();
-
+    ocr::Vector<double> subtractFromBias = currentErrorSignal * this->learningRate;
+    ocr::Vector<double> newBiases = this->network.getLayer(this->network.getLayerSizes()->size() - 2).getBiases().asColumn() - (subtractFromBias).asColumn();
+    this->network.getLayer(this->network.getLayerSizes()->size() - 2).updateBiases(newBiases);
 }
 
 // gradient calculations
@@ -128,7 +121,7 @@ ocr::Vector<double> ocr::FFTrain<T>::cceWRTpredicted(const ocr::Vector<T>& predi
 
 template <typename T>
 ocr::Matrix<double> ocr::FFTrain<T>::cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const size_t layer_num) {
-    ocr::Vector<double> previousLayerActivationValues = this->network.getActivationValues(layer_num);
+    ocr::Vector<double> previousLayerActivationValues = this->network.getActivationValues(layer_num - 1);
     ocr::Vector<double> outputErrorSignalCopy = outputErrorSignal;
 
     previousLayerActivationValues.transpose();
