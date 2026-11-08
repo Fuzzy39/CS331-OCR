@@ -193,15 +193,21 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, size_t layer_num,
        } 
     } else { // perform softmax
         
-        // first, let's calculate the sum across all logits
+        // Shift logits before exponentiating to prevent overflow for large values.
+        double maximum = output[0];
+        for (int i = 1; i < getNeuronCount(); i++) {
+            maximum = std::max(maximum, static_cast<double>(output[i]));
+        }
+
         double sum = 0.0;
         for (int i = 0; i < getNeuronCount(); i++){
-            sum += std::exp(output[i]);
+            output[i] = std::exp(output[i] - maximum);
+            sum += output[i];
         }
 
         // now, let's calculate the softmax for each logit
         for (int i = 0; i < getNeuronCount(); i++) {
-            output[i] = softmax(output[i], sum);
+            output[i] /= sum;
         }
     }
 
@@ -214,8 +220,13 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, size_t layer_num,
 template <typename T>
 inline double ocr::Layer<T>::sigmoid(double x)
 {
-    // should cap things between 1 and -1.
-    return (2.0 / (1.0+ std::exp(-x))) - 1.0;
+    if (x >= 0.0) {
+        const double exponent = std::exp(-x);
+        return 1.0 / (1.0 + exponent);
+    }
+
+    const double exponent = std::exp(x);
+    return exponent / (1.0 + exponent);
 }
 
 // before computing the cost function using categorical-cross-entropy,

@@ -49,9 +49,8 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
     
     // ignore epochs for now
     // train on one image and label at a time, for now
-    // train 100 images
-    for (size_t i = 0; i < 100; i++) {
-        cout << "Training on image " << i << endl;
+    for (size_t i = 0; i < 3; i++) {
+        cout << "Training on image " << (i+1) << endl;
         ocr::Image& image = this->trainingData.getImage(i);
         unique_ptr<ocr::Vector<T>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
 
@@ -62,14 +61,17 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
 
         // calculate the cost function
         double cost = this->costFunction(output, label);
-        cout << "Cost Function for image " << i << ": " << cost << endl;
+        cout << "Cost Function for image " << (i+1) << ": " << cost << endl;
+        cout << "True label: " << static_cast<int>(label) << endl;
+        cout << "predicted:" << endl;
+        output.visualize();
 
         // back prop
         this->backPropagate(*imageVector, output, label);
     }
 
     // save weights
-    this->network.writeToFile("./output/trained.ocrweights");
+    this->network.writeToFile("../output/trained.ocrweights");
 
 }
 

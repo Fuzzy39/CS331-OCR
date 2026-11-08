@@ -41,7 +41,7 @@ int main(void)
 
     // hyperparameters
     size_t batch_size = 30;
-    double learning_rate = 0.05; // how fast we want our MNIST model to learn.
+    double learning_rate = 0.001; // how fast we want our MNIST model to learn.
 
     ocr::FFTrain<double> trainMNIST(nn, trainingData, testingData, learning_rate, batch_size);
     

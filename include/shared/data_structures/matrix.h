@@ -155,8 +155,9 @@ template <typename T>
 ocr::Vector<T> ocr::Matrix<T>::flattenToVector(const Matrix<T>& other) {
     int total_size = other.getRows() * other.getColumns();
     ocr::Vector<T> resVector(total_size);
+    const std::vector<std::vector<T>> other_data = other.getData();
     for (int idx = 0; idx < total_size; idx++){
-        resVector[idx] = (other.getData())[static_cast<int>(idx / other.getRows())][idx % other.getColumns()];
+        resVector[idx] = other_data[static_cast<int>(idx / other.getRows())][idx % other.getColumns()];
     }
     return resVector;
 }
@@ -169,9 +170,10 @@ ocr::Matrix<T> ocr::Matrix<T>::operator+(const ocr::Matrix<T>& other) const {
     }
 
     ocr::Matrix<T> resMtrx(this->rows, this->columns);
+    const std::vector<std::vector<T>> other_data = other.getData();
     for (int row = 0; row < this->rows; row++) {
         for (int col = 0; col < this->columns; col++){
-            T new_val = (*(this->data))[row][col] + other.getData()[row][col];
+            T new_val = (*(this->data))[row][col] + other_data[row][col];
             resMtrx.set(row, col, new_val);
         }
     }
@@ -187,9 +189,10 @@ ocr::Matrix<T> ocr::Matrix<T>::operator-(const ocr::Matrix<T>& other) const {
     }
 
     ocr::Matrix<T> resMtrx(this->rows, this->columns);
+    const std::vector<std::vector<T>> other_data = other.getData();
     for (int row = 0; row < this->rows; row++) {
         for (int col = 0; col < this->columns; col++){
-            T new_val = (*(this->data))[row][col] - other.getData()[row][col];
+            T new_val = (*(this->data))[row][col] - other_data[row][col];
             resMtrx.set(row, col, new_val);
         }
     }
@@ -271,13 +274,14 @@ ocr::Matrix<T>& ocr::Matrix<T>::operator=(const ocr::Matrix<T>& other) {
 template <typename T>
 ocr::Matrix<T> ocr::Matrix<T>::transpose(const ocr::Matrix<T>& other) {
     Matrix<T> transposed_matrix(other.getColumns(), other.getRows());
+    const std::vector<std::vector<T>> other_data = other.getData();
 
     for (int row = 0; row < other.getRows(); row++){
         for (int col = 0; col < other.getColumns(); col++){
-            transposed_matrix.set(col,row,other.getData()[row][col]);
+            transposed_matrix.set(col,row,other_data[row][col]);
         }
     }
-
+    
     return transposed_matrix;
 }
 

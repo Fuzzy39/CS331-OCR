@@ -102,9 +102,9 @@ void ocr::Dataset<T>::parseLabels(std::string labelPath)
             throw std::invalid_argument(error.str());
         }
 
-        for(uint8_t labelData : buffer)
+        for(size_t i = 0; i < bytesToRead; i++)
         {
-            labels.push_back(static_cast<T>(labelData));
+            labels.push_back(static_cast<T>(static_cast<uint8_t>(buffer[i])));
         }
 
         length -= bytesToRead;
