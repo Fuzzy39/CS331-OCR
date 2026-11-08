@@ -34,7 +34,7 @@ namespace ocr
     private:
         // helper methods
         double costFunction(const ocr::Vector<T>& output, const ocr::Digit target);
-        void backPropagate(const ocr::Vector<T> &output, const ocr::Digit &target);
+        void backPropagate(const ocr::Vector<T>& input, const ocr::Vector<T> &output, const ocr::Digit &target);
 
         // gradient calculations
         // I wrote down where all of these came from (will send a scanned PDF), I understand most, but still sort of confusing lol
@@ -44,7 +44,7 @@ namespace ocr
         ocr::Vector<double> cceWRTpredicted(const ocr::Vector<T>& predicted, const ocr::Digit target);
 
         // partial derivative of cee (cost function) with respect to weights
-        ocr::Matrix<double> cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const size_t layer_num);
+        ocr::Matrix<double> cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const ocr::Vector<double>& inputVctr, const size_t layer_num);
 
         // partial derivative of cce (cost function) with respect to bias
         // not needed since it is directly equivalent to output error signal at layer l,

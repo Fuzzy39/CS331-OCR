@@ -49,58 +49,73 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
     
     // ignore epochs for now
     // train on one image and label at a time, for now
-    ocr::Image& testImage = this->testingData.getImage(0);
-    unique_ptr<ocr::Vector<T>> testImageVector = testImage.asFlatVector(ocr::Image::Format::Grayscale);
+    // train 100 images
+    for (size_t i = 0; i < 100; i++) {
+        cout << "Training on image " << i << endl;
+        ocr::Image& image = this->trainingData.getImage(i);
+        unique_ptr<ocr::Vector<T>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
 
-    const ocr::Digit& testLabel = this->testingData.getLabel(0);
-    
-    // evaluate forward pass
-    ocr::Vector<T> output = this->network.evaluate(*testImageVector);
+        const ocr::Digit& label = this->trainingData.getLabel(i);
+        
+        // evaluate forward pass
+        ocr::Vector<T> output = this->network.evaluate(*imageVector);
 
-    // calculate the cost function
-    double cost = this->costFunction(output, testLabel);
-    cout << "Cost Function: " << cost << endl;
+        // calculate the cost function
+        double cost = this->costFunction(output, label);
+        cout << "Cost Function for image " << i << ": " << cost << endl;
 
-    // back prop
-    this->backPropagate(output, testLabel);
+        // back prop
+        this->backPropagate(*imageVector, output, label);
+    }
+
+    // save weights
+    this->network.writeToFile("./output/trained.ocrweights");
 
 }
 
 // back propagation and gradient descent
 
 template <typename T>
-void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T> &output, const ocr::Digit &target) { 
+void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T>& input, const ocr::Vector<T> &output, const ocr::Digit &target) { 
+    
+    // last layer
     ocr::Vector<double> lastLayerOutputSignal = this->cceWRTpredicted(output, target);
     
     ocr::Matrix<double> lastLayerWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 1).getWeights();
     ocr::Vector<double> lastLayerPla = this->cceWRTpla(lastLayerWeights, lastLayerOutputSignal);
 
-    // following my notes
-    // (step A) get incoming weight gradients across activation function
-    ocr::Vector<double> currentErrorSignal = this->layerErrorSignal(lastLayerPla, this->network.getLayerSizes()->size() - 2);
+    // continue to back-propagate through the rest of the layers, starting from the second to last layer and moving backwards
+    for (int layer_num = this->network.getLayerSizes()->size() - 2; layer_num >= 0; layer_num--) {
 
-    // (step B) compute weights gradient
-    ocr::Matrix<double> currentLayerWeightDerivatives = this->cceWRTweights(currentErrorSignal, this->network.getLayerSizes()->size() - 2);
+        // (step A) get incoming weight gradients across activation function
+        ocr::Vector<double> currentErrorSignal = this->layerErrorSignal(lastLayerPla, layer_num);
 
-    // (Step C) compute bias gradient
-    // not needed since it is directly equivalent to output error signal at layer l,
-    // which is returned by layerErrorSignal
+        // (step B) compute weights gradient
+        ocr::Matrix<double> currentLayerWeightGradients = this->cceWRTweights(currentErrorSignal, input, layer_num);
 
-    // (Step D) pass gradient to next previous layer
-    ocr::Matrix<double> currentLayerWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 2).getWeights();
-    ocr::Vector<double> nextLayerPla = this->cceWRTpla(currentLayerWeights, currentErrorSignal);
+        // (Step C) compute bias gradient
+        // not needed since it is directly equivalent to output error signal at layer l,
+        // which is returned by layerErrorSignal
 
-    // (Step E) update weights and biases for layer l
+        // (Step D) pass gradient to next previous layer
+        ocr::Matrix<double> currentLayerWeights = this->network.getLayer(layer_num).getWeights();
+        ocr::Vector<double> nextLayerPla = this->cceWRTpla(currentLayerWeights, currentErrorSignal);
 
-    // new weights (W[l] - learningRate * dC/dW[l])
-    ocr::Matrix<double> subtractFrom = currentLayerWeightDerivatives * this->learningRate;    
-    ocr::Matrix<double> newWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 2).getWeights();
-    this->network.getLayer(this->network.getLayerSizes()->size() - 2).updateWeights(newWeights);
+        // (Step E) update weights and biases for layer l
 
-    // new bias (b[l] - learningRate * dC/db[l])
-    ocr::Vector<double> subtractFromBias = currentErrorSignal * this->learningRate;
-    ocr::Vector<double> newBiases = this->network.getLayer(this->network.getLayerSizes()->size() - 2).getBiases().asColumn() - (subtractFromBias).asColumn();
-    this->network.getLayer(this->network.getLayerSizes()->size() - 2).updateBiases(newBiases);
+        // new weights (W[l] - learningRate * dC/dW[l])
+        ocr::Matrix<double> subtractFrom = currentLayerWeightGradients * this->learningRate;    
+        ocr::Matrix<double> newWeights = this->network.getLayer(layer_num).getWeights() - subtractFrom;
+        this->network.getLayer(layer_num).updateWeights(newWeights);
+
+        // new bias (b[l] - learningRate * dC/db[l])
+        ocr::Vector<double> subtractFromBias = currentErrorSignal * this->learningRate;
+        ocr::Vector<double> newBiases = this->network.getLayer(layer_num).getBiases().asColumn() - (subtractFromBias).asColumn();
+        this->network.getLayer(layer_num).updateBiases(newBiases);
+
+        // update lastLayerPla for next iteration
+        lastLayerPla = nextLayerPla;
+    }
 }
 
 // gradient calculations
@@ -120,8 +135,14 @@ ocr::Vector<double> ocr::FFTrain<T>::cceWRTpredicted(const ocr::Vector<T>& predi
 }
 
 template <typename T>
-ocr::Matrix<double> ocr::FFTrain<T>::cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const size_t layer_num) {
-    ocr::Vector<double> previousLayerActivationValues = this->network.getActivationValues(layer_num - 1);
+ocr::Matrix<double> ocr::FFTrain<T>::cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const ocr::Vector<double>& inputVctr, const size_t layer_num) {
+    ocr::Vector<double> previousLayerActivationValues(10); // just a temp. placeholder
+    if (layer_num > 0){
+        previousLayerActivationValues = this->network.getActivationValues(layer_num - 1);
+    } else { // input layer is activation values
+        ocr::Vector<double> inputVctrCopy = inputVctr;
+        previousLayerActivationValues = inputVctrCopy.asColumn(); 
+    }
     ocr::Vector<double> outputErrorSignalCopy = outputErrorSignal;
 
     previousLayerActivationValues.transpose();
@@ -131,6 +152,7 @@ ocr::Matrix<double> ocr::FFTrain<T>::cceWRTweights(const ocr::Vector<double>& ou
 template <typename T>
 ocr::Vector<double> ocr::FFTrain<T>::cceWRTpla(const ocr::Matrix<double>& layerWeights, const ocr::Vector<double>& outputErrorSignal) {
     ocr::Matrix<double> transposedLayerWeights = ocr::Matrix<double>::transpose(layerWeights);
+
     return transposedLayerWeights * outputErrorSignal;
 }
 
