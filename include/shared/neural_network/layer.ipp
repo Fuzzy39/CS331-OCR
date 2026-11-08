@@ -188,7 +188,7 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, size_t layer_num,
 
     if (!lastLayer) {
        for (int i = 0; i < getNeuronCount(); i++)
-       {
+       {   
            output[i] = sigmoid(output[i]);
        } 
     } else { // perform softmax
@@ -205,7 +205,7 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, size_t layer_num,
             sum += output[i];
         }
 
-        // now, let's calculate the softmax for each logit
+        // now, calculate the softmax for each logit
         for (int i = 0; i < getNeuronCount(); i++) {
             output[i] /= sum;
         }

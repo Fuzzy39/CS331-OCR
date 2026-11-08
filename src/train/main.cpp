@@ -16,7 +16,7 @@ int main(void)
     // * Loading in the MNIST dataset
 
     // training data set
-    Dataset<Digit> trainingData("../data/emnist-digits-test-images-idx3-ubyte", "../data/emnist-digits-test-labels-idx1-ubyte");
+    Dataset<Digit> trainingData("../data/emnist-digits-train-images-idx3-ubyte", "../data/emnist-digits-train-labels-idx1-ubyte");
 
     // testing data set
     Dataset<Digit> testingData("../data/emnist-digits-test-images-idx3-ubyte", "../data/emnist-digits-test-labels-idx1-ubyte");

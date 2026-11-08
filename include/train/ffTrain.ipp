@@ -49,8 +49,10 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
     
     // ignore epochs for now
     // train on one image and label at a time, for now
-    for (size_t i = 0; i < 3; i++) {
-        cout << "Training on image " << (i+1) << endl;
+    for (int i = 0; i < static_cast<int>(this->trainingData.getImageCount()); i++) {
+        // cout << "check random weights: " << endl;
+        // cout << "weight: " << to_string(this->network.getLayer(4).getWeight(0, 0)) << endl;
+        // cout << "Training on image " << (i+1) << endl;
         ocr::Image& image = this->trainingData.getImage(i);
         unique_ptr<ocr::Vector<T>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
 
@@ -62,16 +64,16 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
         // calculate the cost function
         double cost = this->costFunction(output, label);
         cout << "Cost Function for image " << (i+1) << ": " << cost << endl;
-        cout << "True label: " << static_cast<int>(label) << endl;
-        cout << "predicted:" << endl;
-        output.visualize();
+        // cout << "True label: " << static_cast<int>(label) << endl;
+        // cout << "predicted:" << endl;
+        // output.visualize();
 
         // back prop
         this->backPropagate(*imageVector, output, label);
     }
 
     // save weights
-    this->network.writeToFile("../output/trained.ocrweights");
+    this->network.writeToFile("../output/trained");
 
 }
 
@@ -85,6 +87,18 @@ void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T>& input, const ocr::Vect
     
     ocr::Matrix<double> lastLayerWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 1).getWeights();
     ocr::Vector<double> lastLayerPla = this->cceWRTpla(lastLayerWeights, lastLayerOutputSignal);
+
+    // update weights and biases for last layer
+    // new weights (W[l] - learningRate * dC/dW[l])
+    ocr::Matrix<double> lastLayerWeightGradients = this->cceWRTweights(lastLayerOutputSignal, input, this->network.getLayerSizes()->size() - 1);
+    ocr::Matrix<double> subtractFrom = lastLayerWeightGradients * this->learningRate;    
+    ocr::Matrix<double> newWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 1).getWeights() - subtractFrom;
+    this->network.getLayer(this->network.getLayerSizes()->size() - 1).updateWeights(newWeights);
+
+    // new bias (b[l] - learningRate * dC/db[l])
+    ocr::Vector<double> subtractFromBias = lastLayerOutputSignal * this->learningRate;
+    ocr::Vector<double> newBiases = this->network.getLayer(this->network.getLayerSizes()->size() - 1).getBiases().asColumn() - (subtractFromBias).asColumn();
+    this->network.getLayer(this->network.getLayerSizes()->size() - 1).updateBiases(newBiases);
 
     // continue to back-propagate through the rest of the layers, starting from the second to last layer and moving backwards
     for (int layer_num = this->network.getLayerSizes()->size() - 2; layer_num >= 0; layer_num--) {
@@ -107,7 +121,7 @@ void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T>& input, const ocr::Vect
 
         // new weights (W[l] - learningRate * dC/dW[l])
         ocr::Matrix<double> subtractFrom = currentLayerWeightGradients * this->learningRate;    
-        ocr::Matrix<double> newWeights = this->network.getLayer(layer_num).getWeights() - subtractFrom;
+        ocr::Matrix<double> newWeights = this->network.getLayer(layer_num).getWeights() - subtractFrom;\
         this->network.getLayer(layer_num).updateWeights(newWeights);
 
         // new bias (b[l] - learningRate * dC/db[l])

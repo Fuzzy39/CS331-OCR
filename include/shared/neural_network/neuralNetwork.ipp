@@ -100,8 +100,6 @@ ocr::Vector<T> ocr::NeuralNetwork<T>::evaluate(ocr::Vector<T> input)
         } else {
             toReturn = layers[i].evaluate(toReturn, i, *this, true); // softmax
         }
-        std::cout << "Layer " << i << " output: " << std::endl;
-        toReturn.visualize();
     }
 
     // Check that the output vector is of the right size.
