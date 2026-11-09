@@ -4,9 +4,7 @@
 #include "ffTrain.h"
 #include <iostream>
 #include <algorithm>
-#include <limits>
 #include <vector>
-#include <cmath>
 #include <string>
 #include "data_structures/vector.h"
 
@@ -49,29 +47,32 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
     
     // ignore epochs for now
     // train on one image and label at a time, for now
-    for (int i = 0; i < static_cast<int>(this->trainingData.getImageCount()); i++) {
-        // cout << "check random weights: " << endl;
-        // cout << "weight: " << to_string(this->network.getLayer(4).getWeight(0, 0)) << endl;
-        // cout << "Training on image " << (i+1) << endl;
-        ocr::Image& image = this->trainingData.getImage(i);
-        unique_ptr<ocr::Vector<T>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
+    double trailing1000AverageCost = 0.0;
+    for (int epoch = 0; epoch < epochs; epoch++) {
+        cout << "Epoch: " << epoch + 1 << endl;
+        for (int i = 0; i < static_cast<int>(this->trainingData.getImageCount()) / 2; i++) {
+            ocr::Image& image = this->trainingData.getImage(i);
+            unique_ptr<ocr::Vector<T>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
 
-        const ocr::Digit& label = this->trainingData.getLabel(i);
-        
-        // evaluate forward pass
-        ocr::Vector<T> output = this->network.evaluate(*imageVector);
+            const ocr::Digit& label = this->trainingData.getLabel(i);
+            
+            // evaluate forward pass
+            ocr::Vector<T> output = this->network.evaluate(*imageVector);
 
-        // calculate the cost function
-        double cost = this->costFunction(output, label);
-        cout << "Cost Function for image " << (i+1) << ": " << cost << endl;
-        // cout << "True label: " << static_cast<int>(label) << endl;
-        // cout << "predicted:" << endl;
-        // output.visualize();
+            // calculate the cost function
+            double cost = this->costFunction(output, label);
+            if (i % 1000 != 0) {
+                trailing1000AverageCost += cost;
+            } else {
+                cout << "Average Cost at image " << i << ": " << (trailing1000AverageCost / 1000.0) << endl;
+                trailing1000AverageCost = 0.0;
+            }
 
-        // back prop
-        this->backPropagate(*imageVector, output, label);
+            // back prop
+            this->backPropagate(*imageVector, output, label);
+        }
     }
-
+    
     // save weights
     this->network.writeToFile("../output/trained");
 

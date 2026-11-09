@@ -18,7 +18,7 @@ int main(void)
     // training data set
     Dataset<Digit> trainingData("../data/emnist-digits-train-images-idx3-ubyte", "../data/emnist-digits-train-labels-idx1-ubyte");
 
-    // testing data set
+    // // testing data set
     Dataset<Digit> testingData("../data/emnist-digits-test-images-idx3-ubyte", "../data/emnist-digits-test-labels-idx1-ubyte");
     
     // sanity check that data was loaded/parsed correctly
@@ -33,9 +33,9 @@ int main(void)
 
     // input: 784 (28x28 flattened image)
     // output: 10 (digits 0-9)
-    // hidden layers: 128, 64, 64, 32
+    // hidden layers: 64, 32
 
-    ocr::NeuralNetwork<double> nn(784, 10, std::vector<size_t>({128, 64, 64, 32}));
+    ocr::NeuralNetwork<double> nn(784, 10, std::vector<size_t>({64, 32}));
     nn.randomizeNetwork();
     nn.print();
 
@@ -46,48 +46,6 @@ int main(void)
     ocr::FFTrain<double> trainMNIST(nn, trainingData, testingData, learning_rate, batch_size);
     
     trainMNIST.train(10);
-
-
-
-
-
-
-
-
-
-
-
-    // tests
-
-    // sample output and target
-    // Vector<double> so = {3.2, -1.2, 0.4, -0.1, 4.1, 0.5, -2.0, 1.3, 2.8, 0.3};
-    // double st = 3;
-
-    // test softmax
-
-    // ocr::Vector<double> softmax = trainMNIST.train(10, so, st);
-    // for (size_t i = 0; i < 10; i++){
-    //     std::cout << to_string(softmax[i]) << " ";
-    // }
-    // std::cout << std::endl;
-
-    // test cost function
-
-    // std::cout << "Cost Function when target is..." << std::endl;
-    // std::cout << "4" << std::endl;
-    // trainMNIST.train(10, so, 4);
-
-    // std::cout << "3" << std::endl;
-    // trainMNIST.train(10, so, 3);
-
-    // std::cout << "0" << std::endl;
-    // trainMNIST.train(10, so, 0);
-
-    // std::cout << "6" << std::endl;
-    // trainMNIST.train(10, so, 6);
-
-    
-
 
     return 0;
 }

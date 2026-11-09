@@ -85,7 +85,9 @@ void ocr::Layer<T>::randomizeLayer()
     // this is apparently how random numbers in C++ work. If you're not doing it the C way, at least.
     std::random_device dev;
     std::mt19937 rng(dev()); // messerine twister, I guess the form of rng. I think it has a period of 2^19937-1 or something?
-    std::uniform_real_distribution<> dist(-1, 1); // initial values for weights and biases will be between -1 and 1.
+    double xavier_glorot_uniform_limit = std::sqrt(6.0 / (this->getInputCount() + this->getNeuronCount()));
+    std::uniform_real_distribution<> dist(-xavier_glorot_uniform_limit, xavier_glorot_uniform_limit);
+    std::uniform_real_distribution<> bias_dist(-0.05, 0.05);
 
     // randomize weights
     for(int i = 0; i<weights.getRows(); i++)
@@ -99,7 +101,7 @@ void ocr::Layer<T>::randomizeLayer()
     // and biases.
     for(size_t i = 0; i<biases.getSize(); i++)
     {
-        biases[i]=dist(rng);
+        biases[i]=bias_dist(rng);
     }
 
 }
