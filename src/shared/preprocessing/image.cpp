@@ -100,8 +100,6 @@ void ocr::Image::populateMap( const char* const data)
             }
         }
     }
-
-
   
     // pop the data in the matrices.
     int i = 0;

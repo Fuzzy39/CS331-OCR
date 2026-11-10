@@ -38,7 +38,7 @@ ocr::FFTrain<T>::FFTrain(
 // however, since 9/10 of yi values are 0.0, then this really reduces to:
 // L(y, y') = -ln(y'c) where y'c is logit value at predicted index
 template <typename T>
-double ocr::FFTrain<T>::costFunction(const ocr::Vector<T>& output, const ocr::Digit target) {
+double ocr::FFTrain<T>::costFunction(const ocr::Vector<T>& output, const ocr::Digit target) {    
     return (-1 * std::log(output[static_cast<int>(target)]));
 }
 
@@ -50,7 +50,7 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
     double trailing1000AverageCost = 0.0;
     for (int epoch = 0; epoch < epochs; epoch++) {
         cout << "Epoch: " << epoch + 1 << endl;
-        for (int i = 0; i < static_cast<int>(this->trainingData.getImageCount()) / 2; i++) {
+        for (int i = 0; i < static_cast<int>(this->trainingData.getImageCount()); i++) {
             ocr::Image& image = this->trainingData.getImage(i);
             unique_ptr<ocr::Vector<T>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
 

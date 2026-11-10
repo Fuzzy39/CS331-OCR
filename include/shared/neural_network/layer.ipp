@@ -86,7 +86,8 @@ void ocr::Layer<T>::randomizeLayer()
     std::random_device dev;
     std::mt19937 rng(dev()); // messerine twister, I guess the form of rng. I think it has a period of 2^19937-1 or something?
     double xavier_glorot_uniform_limit = std::sqrt(6.0 / (this->getInputCount() + this->getNeuronCount()));
-    std::uniform_real_distribution<> dist(-xavier_glorot_uniform_limit, xavier_glorot_uniform_limit);
+    // std::uniform_real_distribution<> dist(-xavier_glorot_uniform_limit, xavier_glorot_uniform_limit);
+    std::uniform_real_distribution<> dist(-0.20, 0.20);
     std::uniform_real_distribution<> bias_dist(-0.05, 0.05);
 
     // randomize weights
@@ -194,7 +195,7 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, size_t layer_num,
            output[i] = sigmoid(output[i]);
        } 
     } else { // perform softmax
-        
+
         // Shift logits before exponentiating to prevent overflow for large values.
         double maximum = output[0];
         for (int i = 1; i < getNeuronCount(); i++) {

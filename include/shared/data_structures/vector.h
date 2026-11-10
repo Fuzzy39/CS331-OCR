@@ -129,9 +129,8 @@ void ocr::Vector<T>::transpose() {
     } else { // to horizontal
         for (int idx = 1; idx < size; idx++) {
             (*(this->data))[0].push_back((*(this->data))[idx][0]);
-            (*(this->data)) = {(*(this->data))[0]};
         }
-
+        (*(this->data)).resize(1);
     }
 }
 
