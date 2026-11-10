@@ -45,8 +45,8 @@ double ocr::FFTrain<T>::costFunction(const ocr::Vector<T>& output, const ocr::Di
 template <typename T>
 ocr::Vector<double> FFTrain<T>::train(int epochs) {
     
-    // ignore epochs for now
-    // train on one image and label at a time, for now
+    ocr::Vector<double> averageCostPerEpoch(epochs);
+
     double trailing1000AverageCost = 0.0;
     for (int epoch = 0; epoch < epochs; epoch++) {
         cout << "Epoch: " << epoch + 1 << endl;
@@ -65,16 +65,59 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
                 trailing1000AverageCost += cost;
             } else {
                 cout << "Average Cost at image " << i << ": " << (trailing1000AverageCost / 1000.0) << endl;
+                averageCostPerEpoch[epoch] = trailing1000AverageCost / 1000.0;
                 trailing1000AverageCost = 0.0;
             }
 
             // back prop
             this->backPropagate(*imageVector, output, label);
         }
+
+        // validation accuracy
+
+        double averageCost = 0.0;
+        ocr::Vector<T> numCorrect(10);
+        ocr::Vector<T> numIncorrect(10);
+        ocr::Vector<T> accuracyPerDigit(10);
+
+        for (int i = 0; i < static_cast<int>(this->testingData.getImageCount()); i++) {
+            ocr::Image& image = this->testingData.getImage(i);
+            unique_ptr<ocr::Vector<T>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
+            const ocr::Digit& label = this->testingData.getLabel(i);
+
+            ocr::Vector<T> output = this->network.evaluate(*imageVector);
+            averageCost += this->costFunction(output, label);
+
+            // update accuracy metrics
+           
+            ocr::Digit predicted = static_cast<ocr::Digit>(0);
+            for (int i = 1; i < 10; i++) {
+                if (output[i] > output[static_cast<int>(predicted)]) {
+                    predicted = static_cast<ocr::Digit>(i);
+                }
+            }
+
+            if (predicted == label) {
+                numCorrect[static_cast<int>(label)]++;
+            } else {
+                numIncorrect[static_cast<int>(label)]++;
+            }
+        }
+
+        cout << "Validation Statistics after epoch " << epoch + 1 << ":" << endl;
+        cout << "Average Cost: " << (averageCost / (static_cast<int>(this->testingData.getImageCount()) / 4)) << endl;
+        cout << "Accuracy per digit:" << endl;
+        for (int i = 0; i < 10; i++) {
+            accuracyPerDigit[i] = numCorrect[i] / (numCorrect[i] + numIncorrect[i]);
+            cout << "Digit " << i << ": " << (accuracyPerDigit[i] * 100) << "%" << endl;
+        }
+
     }
     
     // save weights
     this->network.writeToFile("../output/trained");
+
+    return averageCostPerEpoch;
 
 }
 

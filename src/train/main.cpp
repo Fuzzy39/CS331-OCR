@@ -45,7 +45,7 @@ int main(void)
 
     ocr::FFTrain<double> trainMNIST(nn, trainingData, testingData, learning_rate, batch_size);
     
-    trainMNIST.train(10);
+    trainMNIST.train(15); // train for 15 epochs
 
     return 0;
 }
