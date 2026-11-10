@@ -105,7 +105,7 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
         }
 
         cout << "Validation Statistics after epoch " << epoch + 1 << ":" << endl;
-        cout << "Average Cost: " << (averageCost / (static_cast<int>(this->testingData.getImageCount()) / 4)) << endl;
+        cout << "Average Cost: " << (averageCost / (static_cast<int>(this->testingData.getImageCount()))) << endl;
         cout << "Accuracy per digit:" << endl;
         for (int i = 0; i < 10; i++) {
             accuracyPerDigit[i] = numCorrect[i] / (numCorrect[i] + numIncorrect[i]);
