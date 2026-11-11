@@ -73,8 +73,9 @@ ocr::Vector<T> ocr::Vector<T>::operator=(const ocr::Vector<T>& other) {
     this->size = other.getSize();
     this->rows = other.getRows();
     this->columns = other.getColumns();
-    this->data = std::make_unique<std::vector<std::vector<T>>>(other.getData()); // deep copy
-
+    
+    // deep copy
+    this->data = std::make_shared<std::vector<std::vector<T>>>(other.getData());
     return *this;
 }
 
