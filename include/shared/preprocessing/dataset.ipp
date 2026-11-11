@@ -34,7 +34,7 @@ ocr::Dataset<T>::Dataset(std::string imagePath, std::string labelPath): images()
 template <typename T>
 void ocr::Dataset<T>::parseImages(std::string imagePath)
 {
-    
+
     // open the file for reading. Complain dramatically if something went wrong.
     std::ifstream file = FileUtil::openFileForRead(imagePath);
 
@@ -102,9 +102,9 @@ void ocr::Dataset<T>::parseLabels(std::string labelPath)
             throw std::invalid_argument(error.str());
         }
 
-        for(uint8_t labelData : buffer)
+        for(size_t i = 0; i < bytesToRead; i++)
         {
-            labels.push_back(static_cast<T>(labelData));
+            labels.push_back(static_cast<T>(static_cast<uint8_t>(buffer[i])));
         }
 
         length -= bytesToRead;
@@ -113,10 +113,6 @@ void ocr::Dataset<T>::parseLabels(std::string labelPath)
     // I don't think you need to call close, since ifstream should clean up in its destructor. but it seems polite? Sure.
     file.close();
 }
-
-
-
-
 
 template <typename T>
 size_t ocr::Dataset<T>::getImageCount()

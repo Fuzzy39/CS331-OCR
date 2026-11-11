@@ -3,6 +3,7 @@
 #include <utility>
 #include <sstream>
 #include <memory>
+#include <filesystem>
 
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
@@ -26,9 +27,10 @@ ocr::Image::Image(std::string filename, size_t width, size_t height)
     int actualWidth = 0;
     int actualHeight = 0;
     int numChannels = 0;
+
     char* data = reinterpret_cast<char*>(stbi_load(filename.c_str(), &actualWidth, &actualHeight, &numChannels, 0));
     if(data == NULL)
-    {
+    {   
         throw std::invalid_argument(stbi_failure_reason());
     }
 
@@ -56,10 +58,11 @@ ocr::Image::Image(std::string filename, size_t width, size_t height)
     default:
         throw std::invalid_argument("Image had an unusual number of channels.");
     }
- throw std::invalid_argument(stbi_failure_reason());
+
+//  throw std::invalid_argument(stbi_failure_reason());
     // now actually put away the data and store it properly.
     populateMap(data);
-    stbi_image_free(data);
+    // stbi_image_free(data);
 }
 
 void ocr::Image::populateMap( const char* const data)
@@ -75,7 +78,7 @@ void ocr::Image::populateMap( const char* const data)
     for(Image::Channel ch : channels)
     {
         // fill them with empty husks before we populate them
-        map.emplace(Image::Channel::Greyscale, std::make_unique<ocr::Matrix<uint8_t>>(width, height));
+        map.emplace(ch, std::make_unique<ocr::Matrix<uint8_t>>(width, height));
 
     }
 
@@ -97,7 +100,6 @@ void ocr::Image::populateMap( const char* const data)
             }
         }
     }
-
   
     // pop the data in the matrices.
     int i = 0;
@@ -106,6 +108,7 @@ void ocr::Image::populateMap( const char* const data)
         std::get<1>(*map.find(ch))->fill(imageData[i]);
         i++;
     }
+
     // We're now officially an image!
 }
 

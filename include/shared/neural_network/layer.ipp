@@ -4,6 +4,7 @@
 #include "FileUtil.h"
 #include <random>
 #include <string>
+#include "neural_network/neuralNetwork.h"
 
 template <typename T>
 ocr::Layer<T>::Layer(size_t inputCount, size_t neuronCount)
@@ -84,7 +85,9 @@ void ocr::Layer<T>::randomizeLayer()
     // this is apparently how random numbers in C++ work. If you're not doing it the C way, at least.
     std::random_device dev;
     std::mt19937 rng(dev()); // messerine twister, I guess the form of rng. I think it has a period of 2^19937-1 or something?
-    std::uniform_real_distribution<> dist(-1, 1); // initial values for weights and biases will be between -1 and 1.
+    double xavier_glorot_uniform_limit = std::sqrt(6.0 / (this->getInputCount() + this->getNeuronCount()));
+    std::uniform_real_distribution<> dist(-xavier_glorot_uniform_limit, xavier_glorot_uniform_limit);
+    std::uniform_real_distribution<> bias_dist(0,0);
 
     // randomize weights
     for(int i = 0; i<weights.getRows(); i++)
@@ -98,7 +101,7 @@ void ocr::Layer<T>::randomizeLayer()
     // and biases.
     for(size_t i = 0; i<biases.getSize(); i++)
     {
-        biases[i]=dist(rng);
+        biases[i]=bias_dist(rng);
     }
 
 }
@@ -115,6 +118,14 @@ size_t ocr::Layer<T>::getInputCount()
     return weights.getColumns();
 }
 
+// Biases
+
+template <typename T>
+ocr::Vector<T> ocr::Layer<T>::getBiases()
+{
+    return biases;
+}
+
 template <typename T>
 T ocr::Layer<T>::getBias(size_t neuron)
 {
@@ -127,6 +138,18 @@ void ocr::Layer<T>::setBias(size_t neuron, T bias)
     biases[neuron] = bias;
 } 
 
+template <typename T>
+void ocr::Layer<T>::updateBiases(const ocr::Vector<T>& newBiases) {
+    this->biases = newBiases; // implicit deep copy
+}
+
+// Weights
+
+template <typename T>
+ocr::Matrix<T> ocr::Layer<T>::getWeights()
+{
+    return weights;
+}
 
 template <typename T>
 T ocr::Layer<T>::getWeight(size_t inputNeuron, size_t neuron)
@@ -140,16 +163,20 @@ void ocr::Layer<T>::setWeight(size_t inputNeuron, size_t neuron, T weight )
    weights.set(neuron, inputNeuron, weight);
 }
 
+template <typename T>
+void ocr::Layer<T>::updateWeights(const ocr::Matrix<T>& newWeights) {
+    this->weights = newWeights; // implicit deep copy
+}
 
 
 template <typename T>
-ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs)
+ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, size_t layer_num, ocr::NeuralNetwork<T>& nn, bool lastLayer)
 {
-    if(inputs.getSize()!=getInputCount())
+    if(inputs.getSize()!=getInputCount())   
     {
         std::ostringstream error;
-        error << "Wrong size for input vector. Got size " <<inputs.getSize()
-            <<", but expected "<<getInputCount() <<".";
+        error << "Wrong size for input vector. Got size " << inputs.getSize()
+            <<", but expected " + std::to_string(getInputCount()) << ".";
         throw std::invalid_argument(error.str());
     }
 
@@ -158,10 +185,36 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs)
     // with any luck, this'll just work. (Nope. I had to fix some things.)
     ocr::Vector<T> output = (weights * inputs.asColumn()) + biases.asColumn();
 
-    for(int i = 0; i< getNeuronCount(); i++)
-    {
-        output[i] = sigmoid(output[i]);
+    // store pre-activation logits for backpropagation
+    nn.preActivationLogits[layer_num] = output;
+
+    if (!lastLayer) {
+       for (int i = 0; i < getNeuronCount(); i++)
+       {   
+           output[i] = sigmoid(output[i]);
+       } 
+    } else { // perform softmax
+
+        // Shift logits before exponentiating to prevent overflow for large values.
+        double maximum = output[0];
+        for (int i = 1; i < getNeuronCount(); i++) {
+            maximum = std::max(maximum, static_cast<double>(output[i]));
+        }
+
+        double sum = 0.0;
+        for (int i = 0; i < getNeuronCount(); i++){
+            output[i] = std::exp(output[i] - maximum);
+            sum += output[i];
+        }
+
+        // now, calculate the softmax for each logit
+        for (int i = 0; i < getNeuronCount(); i++) {
+            output[i] /= sum;
+        }
     }
+
+    // store activation values for backpropagation
+    nn.activationValues[layer_num] = output;
 
     return output;
 }
@@ -169,6 +222,22 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs)
 template <typename T>
 inline double ocr::Layer<T>::sigmoid(double x)
 {
-    // should cap things between 1 and -1.
-    return (2.0 / (1.0+ std::exp(-x))) - 1.0;
+    if (x >= 0.0) {
+        const double exponent = std::exp(-x);
+        return 1.0 / (1.0 + exponent);
+    }
+
+    const double exponent = std::exp(x);
+    return exponent / (1.0 + exponent);
+}
+
+// before computing the cost function using categorical-cross-entropy,
+// the output logits must be bounded by [0,1] and sum to 1.0.
+// For example, an output of [1.4,-2.3,4.1,...] does not fit this criteria
+// so, softmax converts these into positive values that add up to 1
+// NOTE: larger logits grow towards one while smaller logits grow towards zero
+
+template <typename T>
+inline double ocr::Layer<T>::softmax(double x, double sum) {
+    return (std::exp(x) / sum);
 }

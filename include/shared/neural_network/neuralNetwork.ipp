@@ -4,7 +4,7 @@
 #include <cassert>
 
 template <typename T>
-ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std::vector<size_t> hiddenLayerSizes): layers()
+ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std::vector<size_t> hiddenLayerSizes): layers(), preActivationLogits(), activationValues()
 {
     size_t layersCount = hiddenLayerSizes.size()+1;
     // create layerSizes as a vector of every layer size, including inputs and outputs.
@@ -12,15 +12,23 @@ ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std:
     layerSizes.insert(layerSizes.begin(), inputCount);
     layerSizes.push_back(outputCount);
 
+    layers.reserve(layersCount);
+    preActivationLogits.reserve(layersCount);
+    activationValues.reserve(layersCount);
 
     for(int i = 0; i<layersCount; i++)
     {
         layers.emplace_back(layerSizes[i], layerSizes[i+1]);
+        // intialize empty vectors.
+        preActivationLogits.emplace_back(0);
+        activationValues.emplace_back(0);
     }
+
+    
 }
 
 template <typename T>
-ocr::NeuralNetwork<T>::NeuralNetwork(std::string pathname) : layers()
+ocr::NeuralNetwork<T>::NeuralNetwork(std::string pathname) : layers(), preActivationLogits(), activationValues()
 {
     // read the file and check that it's a weights file.
     std::ifstream file = FileUtil::openFileForRead(pathname);
@@ -31,12 +39,21 @@ ocr::NeuralNetwork<T>::NeuralNetwork(std::string pathname) : layers()
     size_t previousLayerNeurons = FileUtil::readInt<size_t>(file);
 
     // then read each layer.
+    layers.reserve(layerCount);
+    preActivationLogits.reserve(layerCount);
+    activationValues.reserve(layerCount);
+
     for(int i = 0; i<layerCount; i++)
     {
         uint64_t neuronCount = FileUtil::readInt<uint64_t>(file);
         layers.emplace_back(Layer<T>(file, previousLayerNeurons, neuronCount));
         previousLayerNeurons = layers[i].getNeuronCount();
+
+        // intialize empty vectors.
+        preActivationLogits.emplace_back(0);
+        activationValues.emplace_back(0);
     }
+
 
       // I don't think you need to call close, since ifstream should clean up in its destructor. but it seems polite? Sure.
     file.close();
@@ -87,10 +104,14 @@ template <typename T>
 ocr::Vector<T> ocr::NeuralNetwork<T>::evaluate(ocr::Vector<T> input)
 {
     // pass the vector through each layer until we get the output.
-    ocr::Vector toReturn = input;
-    for(Layer<T> layer : layers)
-    {
-        toReturn = layer.evaluate(toReturn);
+    ocr::Vector<T> toReturn = input;
+
+    for (int i = 0; i < layers.size(); i++) {
+        if (i < layers.size() - 1) { 
+            toReturn = layers[i].evaluate(toReturn, i, *this); // sigmoid
+        } else {
+            toReturn = layers[i].evaluate(toReturn, i, *this, true); // softmax
+        }
     }
 
     // Check that the output vector is of the right size.
@@ -141,4 +162,22 @@ template <typename T>
 void ocr::NeuralNetwork<T>::setWeight(size_t layer, size_t neuronFrom, size_t neuronTo, T weight)
 {
     layers.at(layer).setWeight(neuronFrom, neuronTo, weight);
+}
+
+template <typename T>
+ocr::Layer<T>& ocr::NeuralNetwork<T>::getLayer(size_t layer)
+{
+    return layers.at(layer);
+}
+
+// cache
+
+template <typename T>
+ocr::Vector<T>& ocr::NeuralNetwork<T>::getPreActivationLogits(size_t layer) {
+    return preActivationLogits[layer];
+}
+
+template <typename T>
+ocr::Vector<T>& ocr::NeuralNetwork<T>::getActivationValues(size_t layer) {
+    return activationValues[layer];
 }

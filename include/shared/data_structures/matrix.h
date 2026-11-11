@@ -30,8 +30,16 @@ namespace ocr
 
         // computations
         Matrix<T> operator*(const Matrix<T>& other) const; // defined
+        Matrix<T> operator*(const T& scalar) const; // defined
         Matrix<T> operator+(const Matrix<T>& other) const; // defined
         Matrix<T> operator-(const Matrix<T>& other) const; // defined
+    
+        // Hadamard product (element-wise multiplication)
+        Matrix<T> operator%(const Matrix<T>& other) const; // defined
+
+        // deep copy
+        Matrix<T>& operator=(const Matrix<T>& other); // defined
+
         static Matrix<T> transpose(const Matrix<T>&); // defined
 
         size_t getRows() const; // defined
@@ -147,8 +155,9 @@ template <typename T>
 ocr::Vector<T> ocr::Matrix<T>::flattenToVector(const Matrix<T>& other) {
     int total_size = other.getRows() * other.getColumns();
     ocr::Vector<T> resVector(total_size);
+    const std::vector<std::vector<T>> other_data = other.getData();
     for (int idx = 0; idx < total_size; idx++){
-        resVector[idx] = (other.getData())[static_cast<int>(idx / other.getRows())][idx % other.getColumns()];
+        resVector[idx] = other_data[static_cast<int>(idx / other.getRows())][idx % other.getColumns()];
     }
     return resVector;
 }
@@ -161,9 +170,10 @@ ocr::Matrix<T> ocr::Matrix<T>::operator+(const ocr::Matrix<T>& other) const {
     }
 
     ocr::Matrix<T> resMtrx(this->rows, this->columns);
+    const std::vector<std::vector<T>> other_data = other.getData();
     for (int row = 0; row < this->rows; row++) {
         for (int col = 0; col < this->columns; col++){
-            T new_val = (*(this->data))[row][col] + other.getData()[row][col];
+            T new_val = (*(this->data))[row][col] + other_data[row][col];
             resMtrx.set(row, col, new_val);
         }
     }
@@ -179,9 +189,10 @@ ocr::Matrix<T> ocr::Matrix<T>::operator-(const ocr::Matrix<T>& other) const {
     }
 
     ocr::Matrix<T> resMtrx(this->rows, this->columns);
+    const std::vector<std::vector<T>> other_data = other.getData();
     for (int row = 0; row < this->rows; row++) {
         for (int col = 0; col < this->columns; col++){
-            T new_val = (*(this->data))[row][col] - other.getData()[row][col];
+            T new_val = (*(this->data))[row][col] - other_data[row][col];
             resMtrx.set(row, col, new_val);
         }
     }
@@ -215,15 +226,62 @@ ocr::Matrix<T> ocr::Matrix<T>::operator*(const ocr::Matrix<T>& other) const {
 }
 
 template <typename T>
-ocr::Matrix<T> ocr::Matrix<T>::transpose(const ocr::Matrix<T>& other) {
-    Matrix<T> transposed_matrix(other.getColumns(), other.getRows());
+ocr::Matrix<T> ocr::Matrix<T>::operator*(const T& scalar) const {
+    ocr::Matrix<T> new_matrix(this->rows, this->columns);
+    for (int row = 0; row < this->rows; row++) {
+        for (int col = 0; col < this->columns; col++) {
+            T new_val = (*(this->data))[row][col] * scalar;
+            new_matrix.set(row, col, new_val);
+        }
+    }
+    return new_matrix;
+}
 
-    for (int row = 0; row < other.getRows(); row++){
-        for (int col = 0; col < other.getColumns(); col++){
-            transposed_matrix.set(col,row,other.getData()[row][col]);
+template <typename T>
+ocr::Matrix<T> ocr::Matrix<T>::operator%(const ocr::Matrix<T>& other) const {
+    // matrices must be same dimensions
+    if (this->rows != other.getRows() || this->columns != other.getColumns()) {
+        std::string error = "Matrix dimensions of " + std::to_string(this->rows) + " x " +
+            std::to_string(this->columns) + " and " + std::to_string(other.getRows()) + " x " +
+            std::to_string(other.getColumns()) + " are not compatible.";
+        throw std::logic_error(error);
+    }
+
+    ocr::Matrix<T> new_matrix(this->rows, this->columns);
+    const std::vector<std::vector<T>> other_data = other.getData();
+
+    for (int row = 0; row < this->rows; row++) {
+        for (int col = 0; col < this->columns; col++) {
+            T new_val = (*(this->data))[row][col] * other_data[row][col];
+            new_matrix.set(row, col, new_val);
         }
     }
 
+    return new_matrix;
+}
+
+template <typename T>
+ocr::Matrix<T>& ocr::Matrix<T>::operator=(const ocr::Matrix<T>& other) {
+   
+    this->rows = other.getRows();
+    this->columns = other.getColumns();
+    this->data = std::make_shared<std::vector<std::vector<T>>>(other.getData()); // deep copy
+
+    return *this;
+} 
+
+
+template <typename T>
+ocr::Matrix<T> ocr::Matrix<T>::transpose(const ocr::Matrix<T>& other) {
+    Matrix<T> transposed_matrix(other.getColumns(), other.getRows());
+    const std::vector<std::vector<T>> other_data = other.getData();
+
+    for (int row = 0; row < other.getRows(); row++){
+        for (int col = 0; col < other.getColumns(); col++){
+            transposed_matrix.set(col,row,other_data[row][col]);
+        }
+    }
+    
     return transposed_matrix;
 }
 

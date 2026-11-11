@@ -2,9 +2,10 @@ cmake_minimum_required(VERSION 3.28)
 
 project(OCR LANGUAGES CXX)
 set (CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# set(CMAKE_CXX_EXTENSIONS OFF)
 
 include_directories(PUBLIC "include/shared")
-
 
 add_library(ocr_lib STATIC 
 "include/shared/FileUtil.ipp"
@@ -12,6 +13,8 @@ add_library(ocr_lib STATIC
 "include/shared/preprocessing/dataset.ipp"
 "include/shared/neural_network/neuralNetwork.ipp"
 "include/shared/neural_network/layer.ipp"
+"include/train/ffTrain.ipp"
+"src/shared/preprocessing/batch.cpp"
 )
 
 # Extract
@@ -34,4 +37,13 @@ if(true)
     add_executable(test "src/testing/NeuralNetwork.cpp")
     target_include_directories(test PUBLIC "include/shared")
     target_link_libraries(test ocr_lib)
+
+    add_executable(matrix "src/testing/data_structures.cpp")
+    target_include_directories(matrix PUBLIC "include/shared")
+    target_link_libraries(matrix ocr_lib)
 endif()
+
+# Shared (Testing)
+# add_executable(shared "src/shared/data_structures/main.cpp")
+# target_include_directories(shared PUBLIC "include/shared")
+# target_link_libraries(shared ocr_lib)
