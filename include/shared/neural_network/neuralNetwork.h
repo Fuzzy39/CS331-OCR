@@ -12,6 +12,9 @@ namespace ocr
     {
     private:
         std::vector<Layer<T>> layers;
+        std::vector<ocr::Vector<T>> preActivationLogits; // pre-activation logits cache
+        std::vector<ocr::Vector<T>> activationValues; // activation values cache
+        friend class ocr::Layer<T>;
     public:
         // creates a network with all weights an biases as default values.
         NeuralNetwork(size_t inputCount, size_t outputCount, std::vector<size_t> hiddenLayerSizes);
@@ -50,6 +53,13 @@ namespace ocr
         // neuronFrom is the index into the layer before this one, and neuronTo is the index in this layer.
         T getWeight(size_t layer, size_t neuronFrom, size_t neuronTo);
         void setWeight(size_t layer, size_t neuronFrom, size_t neuronTo, T weight);
+
+        // get layer
+        Layer<T>& getLayer(size_t layer);
+
+        // cache
+        ocr::Vector<T>& getPreActivationLogits(size_t layer);
+        ocr::Vector<T>& getActivationValues(size_t layer);
     };
 }
 

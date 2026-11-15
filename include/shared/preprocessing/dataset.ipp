@@ -1,6 +1,5 @@
 #pragma once
 #include "preprocessing/dataset.h"
-#include "preprocessing/batch.h"
 #include "FileUtil.h"
 #include <fstream>
 #include <iomanip>
@@ -34,7 +33,7 @@ ocr::Dataset<T>::Dataset(std::string imagePath, std::string labelPath): images()
 template <typename T>
 void ocr::Dataset<T>::parseImages(std::string imagePath)
 {
-    
+
     // open the file for reading. Complain dramatically if something went wrong.
     std::ifstream file = FileUtil::openFileForRead(imagePath);
 
@@ -102,9 +101,9 @@ void ocr::Dataset<T>::parseLabels(std::string labelPath)
             throw std::invalid_argument(error.str());
         }
 
-        for(uint8_t labelData : buffer)
+        for(size_t i = 0; i < bytesToRead; i++)
         {
-            labels.push_back(static_cast<T>(labelData));
+            labels.push_back(static_cast<T>(static_cast<uint8_t>(buffer[i])));
         }
 
         length -= bytesToRead;
@@ -113,10 +112,6 @@ void ocr::Dataset<T>::parseLabels(std::string labelPath)
     // I don't think you need to call close, since ifstream should clean up in its destructor. but it seems polite? Sure.
     file.close();
 }
-
-
-
-
 
 template <typename T>
 size_t ocr::Dataset<T>::getImageCount()
@@ -164,30 +159,30 @@ size_t ocr::Dataset<T>::getBatchCount(size_t batchSize)
 }
 
 // batches
-template <typename T>
-std::unique_ptr<Batch<T>> ocr::Dataset<T>::getBatch(size_t index, size_t batchSize)
-{
-    // this requires some implementation.
+// template <typename T>
+// std::unique_ptr<Batch<T>> ocr::Dataset<T>::getBatch(size_t index, size_t batchSize)
+// {
+//     // this requires some implementation.
 
-    if(index<0 || index>=getBatchCount(batchSize))
-    {
-        // Arguably we could depend on vector to throw an exception for us when we try to do something
-        // wrong but given we're already putting some logic here we should probably be defensive instead.
-        std::ostringstream error;
-        error << "Dataset::getBatch: index: "<< index
-              <<" is out of range for this dataset. Valid range is (0 - "<< getBatchCount(batchSize) <<".";
+//     if(index<0 || index>=getBatchCount(batchSize))
+//     {
+//         // Arguably we could depend on vector to throw an exception for us when we try to do something
+//         // wrong but given we're already putting some logic here we should probably be defensive instead.
+//         std::ostringstream error;
+//         error << "Dataset::getBatch: index: "<< index
+//               <<" is out of range for this dataset. Valid range is (0 - "<< getBatchCount(batchSize) <<".";
 
-        throw std::out_of_range(error.str());
-    }
+//         throw std::out_of_range(error.str());
+//     }
 
-    size_t image_index = index*batchSize;
+//     size_t image_index = index*batchSize;
 
-    if(image_index+batchSize >= images.size())
-    {
-        // We will return a smaller batch if there's not quite enough entries.
-        batchSize = images.size()-image_index;
-    }
+//     if(image_index+batchSize >= images.size())
+//     {
+//         // We will return a smaller batch if there's not quite enough entries.
+//         batchSize = images.size()-image_index;
+//     }
 
-    // finally, create a new batch.
-    return make_unique<Batch>(batchSize, images.begin()+image_index, labels.begin()+image_index);
-}
+//     // finally, create a new batch.
+//     return make_unique<Batch>(batchSize, images.begin()+image_index, labels.begin()+image_index);
+// }

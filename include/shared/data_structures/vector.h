@@ -17,9 +17,12 @@ namespace ocr
         Vector(size_t size); // defined
         Vector(const std::initializer_list<T>& ref);
         Vector(const Matrix<T>& matrix); // implicit type conversion
-
+        Vector(const Vector<T>& other); // copy constructor
         T& operator[](int idx); // defined
         T operator[](int idx) const; // const non-ref defined
+        
+        Vector<T>& operator=(const Vector<T>& other); // defined
+
         void fill(const std::vector<T>& vctr); // defined
 
         // change form
@@ -44,7 +47,7 @@ ocr::Vector<T>::Vector(size_t size) : ocr::Matrix<T>(1,size) {
 template <typename T>
 ocr::Vector<T>::Vector(const std::initializer_list<T>& ref) : ocr::Matrix<T>(1,ref.size()){
     this->size = ref.size();
-    this->data = std::make_shared<std::vector<std::vector<T>>>(1, std::vector<T>{});
+    this->data = std::make_unique<std::vector<std::vector<T>>>(1, std::vector<T>{});
     for (const T& val : ref){
         (*(this->data))[0].push_back(val);
     }
@@ -57,12 +60,33 @@ ocr::Vector<T>::Vector(const Matrix<T>& matrix) : ocr::Matrix<T>(matrix.getRows(
         throw std::logic_error(error);
     }
     this->size = matrix.getRows() * matrix.getColumns();
-    this->data = std::make_shared<std::vector<std::vector<T>>>(matrix.getData());
+    this->data = std::make_unique<std::vector<std::vector<T>>>(matrix.getData());
 }
 
 template <typename T>
 size_t ocr::Vector<T>::getSize() const {
     return this->size;
+}
+
+// copy constructor
+template <typename T>
+ocr::Vector<T>::Vector(const ocr::Vector<T>& other) : ocr::Matrix<T>(other.getRows(), other.getColumns()) {
+    this->size = other.getSize();
+    this->rows = other.getRows();
+    this->columns = other.getColumns();
+    this->data = std::make_unique<std::vector<std::vector<T>>>(other.getData()); // deep copy
+}
+
+// assignment operator
+template <typename T>
+ocr::Vector<T>& ocr::Vector<T>::operator=(const ocr::Vector<T>& other) {
+    this->size = other.getSize();
+    this->rows = other.getRows();
+    this->columns = other.getColumns();
+    
+    // deep copy
+    this->data = std::make_unique<std::vector<std::vector<T>>>(other.getData());
+    return *this;
 }
 
 template <typename T>
@@ -116,9 +140,8 @@ void ocr::Vector<T>::transpose() {
     } else { // to horizontal
         for (int idx = 1; idx < size; idx++) {
             (*(this->data))[0].push_back((*(this->data))[idx][0]);
-            (*(this->data)) = {(*(this->data))[0]};
         }
-
+        (*(this->data)).resize(1);
     }
 }
 

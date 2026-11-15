@@ -1,52 +1,97 @@
 #include <iostream>
-#include <preprocessing/dataset.h>
-#include <applications/digitClassifier.h>
-using namespace ocr;
+#include <string>
+#include <filesystem>
+#include <unordered_map>
+#include <cstddef>
+#include <cstdlib>
+#include <stdexcept>
+#include <format>
+#include <thread>
 
-int main(void)
+#include "applications/digitClassifier.h"
+#include "preprocessing/dataset.h"
+#include "preprocessing/dataset.ipp"
+
+namespace fs = std::filesystem;
+
+int main(int argc, char *argv[])
 {
-    std::cout<<"This is extract!\n";
 
-    // What I would think this program should do:
-    // Takes in a path to the folder or two paths to the files for the dataset, and optional arguments for output path and maximum number of images
-    // Outputs a series of images from the dataset, with the filenames LabelX.png, where label is the label (zero, one, two, etc.) and X is the numbered instance of that label.
-    // could work differently but that's my thought
-    
-
-    // I imagine:
-    /*
-        Dataset data("path/to/imagedata", "path/to/labeldata"); // We'd get these from command line arguments and check them probably.
-        size_t index = 0;
-        for(Image img : data.getImages())
-        {
-            SomeStringbuilderOrSomething("path/to/images")<<index;
-            img.writeToFile(SomeStringBuilderOrSomething.cstr());
-            index++;
-        }
-    
-    */
-
-    // temp
-    try
+    if (argc != 3 && argc != 4)
     {
-        Dataset<Digit> data("data/emnist-digits-test-images-idx3-ubyte", "data/emnist-digits-test-labels-idx1-ubyte");
-        std::cout<<"Read Dataset!\n";
-        for(int i = 0; i<100; i++)
-        {
-            Digit d =   data.getLabel(i);
-            std::cout<<((int)d-(int)Digit::Zero)<<"\n";
+        std::cerr << "Usage: " << argv[0]
+                  << " <dataset-folder> <output-folder> [max-images]\n";
+        return 1;
+    }
 
-            Image& image = data.getImage(i);
+    std::string folderPath = argv[1];
+    std::string outputPath = argv[2];
+    int maxImages = -1;
 
-            std::ostringstream fname;
-            fname<<"output/image"<<i<<" ("<<((int)d-(int)Digit::Zero)<<")";
-            image.writeToFile(fname.str());
+    try
+    { // Max-Image Handling
+        if (argc == 4) {
+            maxImages = std::stoi(argv[3]);
+        } else {
+            maxImages = -1; // No limit
         }
     }
-    catch(const std::exception& e)
+    catch (...)
     {
-        std::cerr << e.what() << '\n';
+        std::cerr << "Max-images must be an integer" << std::endl;
+        return 1;
+    }
+
+    if (!fs::exists(folderPath) || !fs::is_directory(folderPath))
+    { // Verify dataset folder exists.
+        std::cerr << "Dataset folder does not exist: " << folderPath << '\n';
+        return 1;
+    }
+
+    try
+    { // Create output path
+        fs::create_directories(outputPath);
+    }
+    catch (fs::filesystem_error &e)
+    {
+        std::cerr << "Error creating output folder: "
+                  << e.what() << '\n';
+        return 1;
+    }
+
+    try
+    { // Dataset Handling
+        std::string imagePath = folderPath + "/emnist-digits-test-images-idx3-ubyte";
+        std::string labelPath = folderPath + "/emnist-digits-test-labels-idx1-ubyte";
+
+        ocr::Dataset<ocr::Digit> data(imagePath, labelPath);
+        int index = 0;
+            
+        // Iterate through the dataset's images
+        for (auto &img : data.getAllImages())
+        {
+            std::cout << "Writing image " << (index + 1) << std::endl;
+            if (maxImages >= 0 && index >= maxImages)
+            {
+                break;
+            } // Limit
+
+            ocr::Digit imageId = data.getLabel(index);
+
+            std::string filename = std::to_string(static_cast<int>(imageId)) + "-" + std::to_string(index);
+
+            img->writeToFile(outputPath + "/" + filename);
+            index += 1;
+        }
+
+        std::cout << "Extracted " << index << " images to " << outputPath << '.' << std::endl;
+    }
+    catch (std::exception &e)
+    {
+        std::cerr << "Error extracting dataset: " << e.what() << '\n';
+        return 1;
     }
 
     return 0;
+    
 }

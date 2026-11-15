@@ -4,17 +4,12 @@
 #include "data_structures/vector.h"
 #include "data_structures/matrix.h"
 #include "preprocessing/image.h"
-#include "preprocessing/batch.h"
 #include <string>
 #include <vector>
 
 using ocr::Image;
-using ocr::Batch;
-
 namespace ocr
 {
-   
-
     template <typename T>
     class Dataset
     {
@@ -43,7 +38,7 @@ namespace ocr
         size_t getBatchCount(size_t batchSize);
 
         /// @brief gets the index(th) batch, where all batches (possibly except the last) are of size batchSize. 
-        std::unique_ptr<Batch<T>> getBatch(size_t index, size_t batchSize);
+        // std::unique_ptr<Batch<T>> getBatch(size_t index, size_t batchSize);
     };
 }
 
