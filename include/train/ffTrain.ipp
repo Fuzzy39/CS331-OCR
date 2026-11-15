@@ -50,76 +50,85 @@ ocr::Vector<double> FFTrain<T>::train(int epochs) {
     double trailing1000AverageCost = 0.0;
     for (int epoch = 0; epoch < epochs; epoch++) {
         cout << "Epoch: " << epoch + 1 << endl;
-        for (int i = 0; i < static_cast<int>(this->trainingData.getImageCount()); i++) {
-            ocr::Image& image = this->trainingData.getImage(i);
-            unique_ptr<ocr::Vector<T>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
-
-            const ocr::Digit& label = this->trainingData.getLabel(i);
-            
-            // evaluate forward pass
-            ocr::Vector<T> output = this->network.evaluate(*imageVector);
-
-            // calculate the cost function
-            double cost = this->costFunction(output, label);
-            if (i % 1000 != 0) {
-                trailing1000AverageCost += cost;
-            } else {
-                cout << "Average Cost at image " << i << ": " << (trailing1000AverageCost / 1000.0) << endl;
-                averageCostPerEpoch[epoch] = trailing1000AverageCost / 1000.0;
-                trailing1000AverageCost = 0.0;
-            }
-
-            // back prop
-            this->backPropagate(*imageVector, output, label);
-        }
-
-        // validation accuracy
-
-        double averageCost = 0.0;
-        ocr::Vector<T> numCorrect(10);
-        ocr::Vector<T> numIncorrect(10);
-        ocr::Vector<T> accuracyPerDigit(10);
-
-        for (int i = 0; i < static_cast<int>(this->testingData.getImageCount()); i++) {
-            ocr::Image& image = this->testingData.getImage(i);
-            unique_ptr<ocr::Vector<T>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
-            const ocr::Digit& label = this->testingData.getLabel(i);
-
-            ocr::Vector<T> output = this->network.evaluate(*imageVector);
-            averageCost += this->costFunction(output, label);
-
-            // update accuracy metrics
-           
-            ocr::Digit predicted = static_cast<ocr::Digit>(0);
-            for (int i = 1; i < 10; i++) {
-                if (output[i] > output[static_cast<int>(predicted)]) {
-                    predicted = static_cast<ocr::Digit>(i);
-                }
-            }
-
-            if (predicted == label) {
-                numCorrect[static_cast<int>(label)]++;
-            } else {
-                numIncorrect[static_cast<int>(label)]++;
-            }
-        }
-
-        cout << "Validation Statistics after epoch " << epoch + 1 << ":" << endl;
-        cout << "Average Cost: " << (averageCost / (static_cast<int>(this->testingData.getImageCount()))) << endl;
-        cout << "Accuracy per digit:" << endl;
-        for (int i = 0; i < 10; i++) {
-            accuracyPerDigit[i] = numCorrect[i] / (numCorrect[i] + numIncorrect[i]);
-            cout << "Digit " << i << ": " << (accuracyPerDigit[i] * 100) << "%" << endl;
-        }
-
+        this->trainEpoch(epoch, averageCostPerEpoch, trailing1000AverageCost);
+        this->checkTrainingAccuracy(epoch);
     }
-    
+
     // save weights
     this->network.writeToFile("../output/trained");
 
     return averageCostPerEpoch;
-
 }
+
+template <typename T>
+void ocr::FFTrain<T>::trainEpoch(int epoch, ocr::Vector<double>& averageCostPerEpoch, double& trailing1000AverageCost) {
+    for (int i = 0; i < static_cast<int>(this->trainingData.getImageCount()); i++) {
+        ocr::Image& image = this->trainingData.getImage(i);
+        unique_ptr<ocr::Vector<T>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
+
+        const ocr::Digit& label = this->trainingData.getLabel(i);
+        
+        // evaluate forward pass
+        ocr::Vector<T> output = this->network.evaluate(*imageVector);
+
+        // calculate the cost function
+        double cost = this->costFunction(output, label);
+        if (i % 1000 != 0) {
+            trailing1000AverageCost += cost;
+        } else {
+            cout << "Average Cost at image " << i << ": " << (trailing1000AverageCost / 1000.0) << endl;
+            averageCostPerEpoch[epoch] = trailing1000AverageCost / 1000.0;
+            trailing1000AverageCost = 0.0;
+        }
+
+        // back prop
+        this->backPropagate(*imageVector, output, label);
+    }
+}
+
+template <typename T>
+void ocr::FFTrain<T>::checkTrainingAccuracy(int epoch) {
+    // validation accuracy
+
+    double averageCost = 0.0;
+    ocr::Vector<T> numCorrect(10);
+    ocr::Vector<T> numIncorrect(10);
+    ocr::Vector<T> accuracyPerDigit(10);
+
+    for (int i = 0; i < static_cast<int>(this->testingData.getImageCount()); i++) {
+        ocr::Image& image = this->testingData.getImage(i);
+        unique_ptr<ocr::Vector<T>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
+        const ocr::Digit& label = this->testingData.getLabel(i);
+
+        ocr::Vector<T> output = this->network.evaluate(*imageVector);
+        averageCost += this->costFunction(output, label);
+
+        // update accuracy metrics
+        
+        ocr::Digit predicted = static_cast<ocr::Digit>(0);
+        for (int i = 1; i < 10; i++) {
+            if (output[i] > output[static_cast<int>(predicted)]) {
+                predicted = static_cast<ocr::Digit>(i);
+            }
+        }
+
+        if (predicted == label) {
+            numCorrect[static_cast<int>(label)]++;
+        } else {
+            numIncorrect[static_cast<int>(label)]++;
+        }
+    }
+
+    cout << "Validation Statistics after epoch " << epoch + 1 << ":" << endl;
+    cout << "Average Cost: " << (averageCost / (static_cast<int>(this->testingData.getImageCount()))) << endl;
+    cout << "Accuracy per digit:" << endl;
+    for (int i = 0; i < 10; i++) {
+        accuracyPerDigit[i] = numCorrect[i] / (numCorrect[i] + numIncorrect[i]);
+        cout << "Digit " << i << ": " << (accuracyPerDigit[i] * 100) << "%" << endl;
+    }
+}
+
+
 
 // back propagation and gradient descent
 
@@ -127,14 +136,14 @@ template <typename T>
 void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T>& input, const ocr::Vector<T> &output, const ocr::Digit &target) { 
     
     // last layer
-    ocr::Vector<double> lastLayerOutputSignal = this->cceWRTpredicted(output, target);
+    ocr::Vector<double> lastLayerOutputSignal = this->differentiateCostWRTpredicted(output, target);
     
     ocr::Matrix<double> lastLayerWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 1).getWeights();
-    ocr::Vector<double> lastLayerPla = this->cceWRTpla(lastLayerWeights, lastLayerOutputSignal);
+    ocr::Vector<double> lastLayerPla = this->differentiateCostWRTpreviousLayerActivationValues(lastLayerWeights, lastLayerOutputSignal);
 
     // update weights and biases for last layer
     // new weights (W[l] - learningRate * dC/dW[l])
-    ocr::Matrix<double> lastLayerWeightGradients = this->cceWRTweights(lastLayerOutputSignal, input, this->network.getLayerSizes()->size() - 1);
+    ocr::Matrix<double> lastLayerWeightGradients = this->differentiateCostWRTweights(lastLayerOutputSignal, input, this->network.getLayerSizes()->size() - 1);
     ocr::Matrix<double> subtractFrom = lastLayerWeightGradients * this->learningRate;    
     ocr::Matrix<double> newWeights = this->network.getLayer(this->network.getLayerSizes()->size() - 1).getWeights() - subtractFrom;
     this->network.getLayer(this->network.getLayerSizes()->size() - 1).updateWeights(newWeights);
@@ -151,7 +160,7 @@ void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T>& input, const ocr::Vect
         ocr::Vector<double> currentErrorSignal = this->layerErrorSignal(lastLayerPla, layer_num);
 
         // (step B) compute weights gradient
-        ocr::Matrix<double> currentLayerWeightGradients = this->cceWRTweights(currentErrorSignal, input, layer_num);
+        ocr::Matrix<double> currentLayerWeightGradients = this->differentiateCostWRTweights(currentErrorSignal, input, layer_num);
 
         // (Step C) compute bias gradient
         // not needed since it is directly equivalent to output error signal at layer l,
@@ -159,7 +168,7 @@ void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T>& input, const ocr::Vect
 
         // (Step D) pass gradient to next previous layer
         ocr::Matrix<double> currentLayerWeights = this->network.getLayer(layer_num).getWeights();
-        ocr::Vector<double> nextLayerPla = this->cceWRTpla(currentLayerWeights, currentErrorSignal);
+        ocr::Vector<double> nextLayerPla = this->differentiateCostWRTpreviousLayerActivationValues(currentLayerWeights, currentErrorSignal);
 
         // (Step E) update weights and biases for layer l
 
@@ -181,7 +190,7 @@ void ocr::FFTrain<T>::backPropagate(const ocr::Vector<T>& input, const ocr::Vect
 // gradient calculations
 
 template <typename T>
-ocr::Vector<double> ocr::FFTrain<T>::cceWRTpredicted(const ocr::Vector<T>& predicted, const ocr::Digit target) {
+ocr::Vector<double> ocr::FFTrain<T>::differentiateCostWRTpredicted(const ocr::Vector<T>& predicted, const ocr::Digit target) {
     // y^ - y
     
     // create target vector, where all values are 0.0 besides target index of 1.0 
@@ -195,7 +204,7 @@ ocr::Vector<double> ocr::FFTrain<T>::cceWRTpredicted(const ocr::Vector<T>& predi
 }
 
 template <typename T>
-ocr::Matrix<double> ocr::FFTrain<T>::cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const ocr::Vector<double>& inputVctr, const size_t layer_num) {
+ocr::Matrix<double> ocr::FFTrain<T>::differentiateCostWRTweights(const ocr::Vector<double>& outputErrorSignal, const ocr::Vector<double>& inputVctr, const size_t layer_num) {
     ocr::Vector<double> previousLayerActivationValues(10); // just a temp. placeholder
     if (layer_num > 0){
         previousLayerActivationValues = this->network.getActivationValues(layer_num - 1);
@@ -210,7 +219,7 @@ ocr::Matrix<double> ocr::FFTrain<T>::cceWRTweights(const ocr::Vector<double>& ou
 }
 
 template <typename T>
-ocr::Vector<double> ocr::FFTrain<T>::cceWRTpla(const ocr::Matrix<double>& layerWeights, const ocr::Vector<double>& outputErrorSignal) {
+ocr::Vector<double> ocr::FFTrain<T>::differentiateCostWRTpreviousLayerActivationValues(const ocr::Matrix<double>& layerWeights, const ocr::Vector<double>& outputErrorSignal) {
     ocr::Matrix<double> transposedLayerWeights = ocr::Matrix<double>::transpose(layerWeights);
 
     return transposedLayerWeights * outputErrorSignal;

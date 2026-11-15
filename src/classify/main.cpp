@@ -12,24 +12,24 @@ using namespace std;
 int main(int argc, char *argv[])
 {
 
-    if (argc != 2) {
-        std::cerr << "Usage: " << argv[0] << " <image-path>\n";
+    if (argc != 3) {
+        std::cerr << "Usage: " << argv[0] << " <image-path> <weights-path>\n";
         return 1;
     }
     
     // loading in the user-provided image
 
     std::string imagePath = argv[1];
-    const std::string absolute_path = static_cast<std::string>(std::filesystem::current_path()) + "/" + imagePath;
-    std::cout << "Loading image from: " << absolute_path << std::endl;
+    const std::string absolute_image_path = static_cast<std::string>(std::filesystem::current_path()) + "/" + imagePath;
+    std::cout << "Loading image from: " << absolute_image_path << std::endl;
     
-    ocr::Image image(absolute_path, 28, 28);
+    ocr::Image image(absolute_image_path, 28, 28);
     std::cout << "Image loaded successfully." << std::endl;
     unique_ptr<ocr::Vector<double>> imageVector = image.asFlatVector(ocr::Image::Format::Grayscale);
 
-
     // Loading in the neural network from file
-    ocr::NeuralNetwork<double> nn("../output/trained.ocrweights");
+    std::string weightsPath = argv[2];
+    ocr::NeuralNetwork<double> nn(weightsPath);
     ocr::Vector<double> output = nn.evaluate(*imageVector);
 
     int guessedDigitIndex = 0;

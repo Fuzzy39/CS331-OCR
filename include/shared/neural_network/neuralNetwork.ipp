@@ -82,7 +82,7 @@ void ocr::NeuralNetwork<T>::writeToFile(std::string pathname)
 template <typename T>
 void ocr::NeuralNetwork<T>::randomizeNetwork()
 {
-    for(Layer<T> layer : layers)
+    for(Layer<T>& layer : layers)
     {
         layer.randomizeLayer();
     }
@@ -92,7 +92,7 @@ template <typename T>
 void ocr::NeuralNetwork<T>::print()
 {
     int i = 0;
-    for(Layer<T> layer : layers)
+    for(Layer<T>& layer : layers)
     {
         std::cout<<"layer "<<i<<" ("<<layer.getNeuronCount()<<" neurons):\n";
         layer.print();

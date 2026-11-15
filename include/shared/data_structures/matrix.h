@@ -67,7 +67,7 @@ template <typename T>
 ocr::Matrix<T>::Matrix(std::size_t rows, std::size_t cols) {
     this->rows = rows;
     this->columns = cols;
-    this->data = std::make_shared<std::vector<std::vector<T>>>(rows, std::vector<T>(columns, T{})); // fill with default val
+    this->data = std::make_unique<std::vector<std::vector<T>>>(rows, std::vector<T>(columns, T{})); // fill with default val
 }    
 
 template <typename T>
@@ -82,7 +82,7 @@ ocr::Matrix<T>::Matrix(const std::initializer_list<std::initializer_list<T>>& re
     }
 
     this->columns = expected_col_size;
-    this->data = std::make_shared<std::vector<std::vector<T>>>();
+    this->data = std::make_unique<std::vector<std::vector<T>>>();
 
     for (const std::initializer_list<T>& row : ref){
         (*(this->data)).push_back(row);
@@ -268,7 +268,7 @@ template <typename T>
 ocr::Matrix<T>::Matrix(const ocr::Matrix<T>& other) {
     this->rows = other.getRows();
     this->columns = other.getColumns();
-    this->data = std::make_shared<std::vector<std::vector<T>>>(other.getData());
+    this->data = std::make_unique<std::vector<std::vector<T>>>(other.getData());
 }
 
 
@@ -277,7 +277,7 @@ ocr::Matrix<T>& ocr::Matrix<T>::operator=(const ocr::Matrix<T>& other) {
 
     this->rows = other.getRows();
     this->columns = other.getColumns();
-    this->data = std::make_shared<std::vector<std::vector<T>>>(other.getData()); // deep copy
+    this->data = std::make_unique<std::vector<std::vector<T>>>(other.getData()); // deep copy
 
     return *this;
 } 

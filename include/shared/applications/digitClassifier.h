@@ -2,7 +2,6 @@
 #define DIGIT_CLASSIFIER_H
 
 #include "preprocessing/dataset.h"
-#include "preprocessing/batch.h"
 #include "neural_network/neuralNetwork.h"
 
 namespace ocr
@@ -22,7 +21,6 @@ namespace ocr
     };
 
     typedef Dataset<Digit> DigitDataSet;
-    typedef Batch<Digit> DigitBatch;
 
     class DigitClassifier: public NeuralNetwork<double>
     {

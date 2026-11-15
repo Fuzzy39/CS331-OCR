@@ -3,23 +3,38 @@
 
 #include <iostream>
 #include "ffTrain.h"
-#include "main.h"
 #include "neural_network/neuralNetwork.h"
 #include <string>
 #include <preprocessing/dataset.h>
 #include <applications/digitClassifier.h>
 #include "data_structures/vector.h"
+#include <filesystem>
 
-int main(void)
-{
+// if running from root project directory:
+// ./output_folder/train ./data/train-images.idx3-ubyte ./data/train-labels.idx1-ubyte ./data/t10k-images.idx3-ubyte ./data/t10k-labels.idx1-ubyte
+
+int main(int argc, char *argv[])
+{   
+    // Check CLI arguments
+    if (argc != 5) {
+        std::cerr << "Usage: " << argv[0]
+            << " <training-images-path> <training-labels-path> <testing-images-path> <testing-labels-path>\n"
+            << std::endl;
+        return 1;
+    }
+
+    std::string trainingImagesPath = argv[1];
+    std::string trainingLabelsPath = argv[2];
+    std::string testingImagesPath = argv[3];
+    std::string testingLabelsPath = argv[4];
 
     // * Loading in the MNIST dataset
 
     // training data set
-    Dataset<Digit> trainingData("../data/train-images.idx3-ubyte", "../data/train-labels.idx1-ubyte");
+    Dataset<Digit> trainingData(trainingImagesPath, trainingLabelsPath);
 
     // // testing data set
-    Dataset<Digit> testingData("../data/t10k-images.idx3-ubyte", "../data/t10k-labels.idx1-ubyte");
+    Dataset<Digit> testingData(testingImagesPath, testingLabelsPath);
     
     // sanity check that data was loaded/parsed correctly
     std::cout << "--------------------------------------------" << std::endl;

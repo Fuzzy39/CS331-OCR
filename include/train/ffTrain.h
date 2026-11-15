@@ -4,7 +4,7 @@
 #define FF_TRAIN_H
 
 #include "neural_network/neuralNetwork.h"
-#include <applications/digitClassifier.h>
+#include "applications/digitClassifier.h"
 #include "preprocessing/dataset.h"
 #include "data_structures/vector.h"
 #include "applications/digitClassifier.h"
@@ -41,23 +41,27 @@ namespace ocr
 
         // partial derivative of cce (cost function) with respect to logits, or predicted values
         // returns s^[l], the output error signal
-        ocr::Vector<double> cceWRTpredicted(const ocr::Vector<T>& predicted, const ocr::Digit target);
+        ocr::Vector<double> differentiateCostWRTpredicted(const ocr::Vector<T>& predicted, const ocr::Digit target);
 
         // partial derivative of cee (cost function) with respect to weights
-        ocr::Matrix<double> cceWRTweights(const ocr::Vector<double>& outputErrorSignal, const ocr::Vector<double>& inputVctr, const size_t layer_num);
+        ocr::Matrix<double> differentiateCostWRTweights(const ocr::Vector<double>& outputErrorSignal, const ocr::Vector<double>& inputVctr, const size_t layer_num);
 
         // partial derivative of cce (cost function) with respect to bias
         // not needed since it is directly equivalent to output error signal at layer l,
         // which is returned by cceWRTpredicted
 
         // partial derivative of cce (cost function) with respect to previous layer's activation
-        ocr::Vector<double> cceWRTpla(const ocr::Matrix<double>& layerWeights, const ocr::Vector<double>& outputErrorSignal);
+        ocr::Vector<double> differentiateCostWRTpreviousLayerActivationValues(const ocr::Matrix<double>& layerWeights, const ocr::Vector<double>& outputErrorSignal);
 
         // calculate new S^[l] layer error signal where layer != L
         ocr::Vector<double> layerErrorSignal(const ocr::Vector<double>& layerGradient, const size_t layer_num);
     
         // sigmoid gradient
         ocr::Vector<double> sigmoidGradient(size_t layer);
+
+        // misc training functions
+        void checkTrainingAccuracy(int epoch);
+        void trainEpoch(int epoch, ocr::Vector<double>& averageCostPerEpoch, double& trailing1000AverageCost);
 
     
     };

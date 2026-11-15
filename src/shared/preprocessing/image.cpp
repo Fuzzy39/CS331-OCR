@@ -62,7 +62,7 @@ ocr::Image::Image(std::string filename, size_t width, size_t height)
 //  throw std::invalid_argument(stbi_failure_reason());
     // now actually put away the data and store it properly.
     populateMap(data);
-    // stbi_image_free(data);
+    stbi_image_free(data);
 }
 
 void ocr::Image::populateMap( const char* const data)

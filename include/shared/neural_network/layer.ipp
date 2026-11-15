@@ -175,7 +175,7 @@ ocr::Vector<T> ocr::Layer<T>::evaluate(ocr::Vector<T>& inputs, size_t layer_num,
     {
         std::ostringstream error;
         error << "Wrong size for input vector. Got size " << inputs.getSize()
-            <<", but expected " + std::to_string(getInputCount()) << ".";
+            <<", but expected " << std::to_string(getInputCount()) << ".";
         throw std::invalid_argument(error.str());
     }
 

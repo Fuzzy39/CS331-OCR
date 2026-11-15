@@ -14,7 +14,6 @@ add_library(ocr_lib STATIC
 "include/shared/neural_network/neuralNetwork.ipp"
 "include/shared/neural_network/layer.ipp"
 "include/train/ffTrain.ipp"
-"src/shared/preprocessing/batch.cpp"
 )
 
 # Extract

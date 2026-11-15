@@ -1,6 +1,5 @@
 #pragma once
 #include "preprocessing/dataset.h"
-#include "preprocessing/batch.h"
 #include "FileUtil.h"
 #include <fstream>
 #include <iomanip>
@@ -160,30 +159,30 @@ size_t ocr::Dataset<T>::getBatchCount(size_t batchSize)
 }
 
 // batches
-template <typename T>
-std::unique_ptr<Batch<T>> ocr::Dataset<T>::getBatch(size_t index, size_t batchSize)
-{
-    // this requires some implementation.
+// template <typename T>
+// std::unique_ptr<Batch<T>> ocr::Dataset<T>::getBatch(size_t index, size_t batchSize)
+// {
+//     // this requires some implementation.
 
-    if(index<0 || index>=getBatchCount(batchSize))
-    {
-        // Arguably we could depend on vector to throw an exception for us when we try to do something
-        // wrong but given we're already putting some logic here we should probably be defensive instead.
-        std::ostringstream error;
-        error << "Dataset::getBatch: index: "<< index
-              <<" is out of range for this dataset. Valid range is (0 - "<< getBatchCount(batchSize) <<".";
+//     if(index<0 || index>=getBatchCount(batchSize))
+//     {
+//         // Arguably we could depend on vector to throw an exception for us when we try to do something
+//         // wrong but given we're already putting some logic here we should probably be defensive instead.
+//         std::ostringstream error;
+//         error << "Dataset::getBatch: index: "<< index
+//               <<" is out of range for this dataset. Valid range is (0 - "<< getBatchCount(batchSize) <<".";
 
-        throw std::out_of_range(error.str());
-    }
+//         throw std::out_of_range(error.str());
+//     }
 
-    size_t image_index = index*batchSize;
+//     size_t image_index = index*batchSize;
 
-    if(image_index+batchSize >= images.size())
-    {
-        // We will return a smaller batch if there's not quite enough entries.
-        batchSize = images.size()-image_index;
-    }
+//     if(image_index+batchSize >= images.size())
+//     {
+//         // We will return a smaller batch if there's not quite enough entries.
+//         batchSize = images.size()-image_index;
+//     }
 
-    // finally, create a new batch.
-    return make_unique<Batch>(batchSize, images.begin()+image_index, labels.begin()+image_index);
-}
+//     // finally, create a new batch.
+//     return make_unique<Batch>(batchSize, images.begin()+image_index, labels.begin()+image_index);
+// }
