@@ -17,11 +17,11 @@ namespace ocr
         Vector(size_t size); // defined
         Vector(const std::initializer_list<T>& ref);
         Vector(const Matrix<T>& matrix); // implicit type conversion
-
+        Vector(const Vector<T>& other); // copy constructor
         T& operator[](int idx); // defined
         T operator[](int idx) const; // const non-ref defined
         
-        Vector<T> operator=(const Vector<T>& other); // defined
+        Vector<T>& operator=(const Vector<T>& other); // defined
 
         void fill(const std::vector<T>& vctr); // defined
 
@@ -68,8 +68,18 @@ size_t ocr::Vector<T>::getSize() const {
     return this->size;
 }
 
+// copy constructor
 template <typename T>
-ocr::Vector<T> ocr::Vector<T>::operator=(const ocr::Vector<T>& other) {
+ocr::Vector<T>::Vector(const ocr::Vector<T>& other) : ocr::Matrix<T>(other.getRows(), other.getColumns()) {
+    this->size = other.getSize();
+    this->rows = other.getRows();
+    this->columns = other.getColumns();
+    this->data = std::make_unique<std::vector<std::vector<T>>>(other.getData()); // deep copy
+}
+
+// assignment operator
+template <typename T>
+ocr::Vector<T>& ocr::Vector<T>::operator=(const ocr::Vector<T>& other) {
     this->size = other.getSize();
     this->rows = other.getRows();
     this->columns = other.getColumns();

@@ -78,7 +78,6 @@ void ocr::Layer<T>::print()
    biases.visualize();  
 }
 
-
 template <typename T>
 void ocr::Layer<T>::randomizeLayer()
 {

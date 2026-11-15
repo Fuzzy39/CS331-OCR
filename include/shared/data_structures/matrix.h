@@ -37,7 +37,10 @@ namespace ocr
         // Hadamard product (element-wise multiplication)
         Matrix<T> operator%(const Matrix<T>& other) const; // defined
 
-        // deep copy
+        //copy constructor
+        Matrix(const Matrix<T>& other); // defined
+
+        // deep copy (assignment operator)
         Matrix<T>& operator=(const Matrix<T>& other); // defined
 
         static Matrix<T> transpose(const Matrix<T>&); // defined
@@ -260,9 +263,18 @@ ocr::Matrix<T> ocr::Matrix<T>::operator%(const ocr::Matrix<T>& other) const {
     return new_matrix;
 }
 
+// copy constructor
+template <typename T>
+ocr::Matrix<T>::Matrix(const ocr::Matrix<T>& other) {
+    this->rows = other.getRows();
+    this->columns = other.getColumns();
+    this->data = std::make_shared<std::vector<std::vector<T>>>(other.getData());
+}
+
+
 template <typename T>
 ocr::Matrix<T>& ocr::Matrix<T>::operator=(const ocr::Matrix<T>& other) {
-   
+
     this->rows = other.getRows();
     this->columns = other.getColumns();
     this->data = std::make_shared<std::vector<std::vector<T>>>(other.getData()); // deep copy
