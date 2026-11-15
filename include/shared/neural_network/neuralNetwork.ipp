@@ -12,13 +12,19 @@ ocr::NeuralNetwork<T>::NeuralNetwork(size_t inputCount, size_t outputCount, std:
     layerSizes.insert(layerSizes.begin(), inputCount);
     layerSizes.push_back(outputCount);
 
+    layers.reserve(layersCount);
+    preActivationLogits.reserve(layersCount);
+    activationValues.reserve(layersCount);
+
     for(int i = 0; i<layersCount; i++)
     {
         layers.emplace_back(layerSizes[i], layerSizes[i+1]);
+        // intialize empty vectors.
+        preActivationLogits.emplace_back(0);
+        activationValues.emplace_back(0);
     }
 
-    preActivationLogits.reserve(layersCount);
-    activationValues.reserve(layersCount);
+    
 }
 
 template <typename T>
@@ -33,15 +39,21 @@ ocr::NeuralNetwork<T>::NeuralNetwork(std::string pathname) : layers(), preActiva
     size_t previousLayerNeurons = FileUtil::readInt<size_t>(file);
 
     // then read each layer.
+    layers.reserve(layerCount);
+    preActivationLogits.reserve(layerCount);
+    activationValues.reserve(layerCount);
+
     for(int i = 0; i<layerCount; i++)
     {
         uint64_t neuronCount = FileUtil::readInt<uint64_t>(file);
         layers.emplace_back(Layer<T>(file, previousLayerNeurons, neuronCount));
         previousLayerNeurons = layers[i].getNeuronCount();
+
+        // intialize empty vectors.
+        preActivationLogits.emplace_back(0);
+        activationValues.emplace_back(0);
     }
 
-    preActivationLogits.reserve(layerCount);
-    activationValues.reserve(layerCount);
 
       // I don't think you need to call close, since ifstream should clean up in its destructor. but it seems polite? Sure.
     file.close();
@@ -96,7 +108,7 @@ ocr::Vector<T> ocr::NeuralNetwork<T>::evaluate(ocr::Vector<T> input)
 
     for (int i = 0; i < layers.size(); i++) {
         if (i < layers.size() - 1) { 
-           toReturn = layers[i].evaluate(toReturn, i, *this); // sigmoid
+            toReturn = layers[i].evaluate(toReturn, i, *this); // sigmoid
         } else {
             toReturn = layers[i].evaluate(toReturn, i, *this, true); // softmax
         }
