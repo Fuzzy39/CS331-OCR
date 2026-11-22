@@ -32,7 +32,7 @@ target_link_libraries(classify ocr_lib)
 
 # Test mains. Each file in the testing directory is a standalone program.
 # Change the source in add_executable to change what is being tested
-if(true)
+if(false)
     add_executable(test "src/testing/NeuralNetwork.cpp")
     target_include_directories(test PUBLIC "include/shared")
     target_link_libraries(test ocr_lib)
@@ -41,8 +41,3 @@ if(true)
     target_include_directories(matrix PUBLIC "include/shared")
     target_link_libraries(matrix ocr_lib)
 endif()
-
-# Shared (Testing)
-# add_executable(shared "src/shared/data_structures/main.cpp")
-# target_include_directories(shared PUBLIC "include/shared")
-# target_link_libraries(shared ocr_lib)
