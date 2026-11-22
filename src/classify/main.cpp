@@ -20,7 +20,7 @@ int main(int argc, char *argv[])
     // loading in the user-provided image
 
     std::string imagePath = argv[1];
-    const std::string absolute_image_path = static_cast<std::string>(std::filesystem::current_path()) + "/" + imagePath;
+    const std::string absolute_image_path = std::filesystem::current_path().string() + "/" + imagePath;
     std::cout << "Loading image from: " << absolute_image_path << std::endl;
     
     ocr::Image image(absolute_image_path, 28, 28);
